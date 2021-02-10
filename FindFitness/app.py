@@ -37,10 +37,10 @@ no_data = {"layout": {"xaxis": {"visible": False}, "yaxis": {"visible": False},
 
 all_data = {'caulo':{}, 'ecoli':{}}
 for species in all_data:
-    data = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets', species, 'strain_fit.tab'), sep="\t")
-    meta = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets', species, 'fit_quality.tab'), sep="\t", index_col='name')
+    data = pd.read_csv(os.path.join("~/Data/", species, "tnseq", 'strain_fit.tab'), sep="\t")
+    meta = pd.read_csv(os.path.join("~/Data/", species, "tnseq", 'fit_quality.tab'), sep="\t", index_col='name')
     meta = meta[meta['u']]
-    meta['group'] = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets', species, 'expsUsed'), sep="\t", index_col='name')['Group']
+    meta['group'] = pd.read_csv(os.path.join("~/Data/", species, "tnseq", 'expsUsed'), sep="\t", index_col='name')['Group']
     
     data = data[['barcode','rcbarcode','scaffold','strand','pos','locusId','f','enoughT0'] + list(meta.index)]
     #data = data[data['f'].isna()]
@@ -63,14 +63,14 @@ for species in all_data:
     all_data[species]['meta'] = meta.copy()
     all_data[species]['groups'] = groups.copy()
     
-annotation = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets', 'caulo', 'NC_011916.gff'), sep="\t", skiprows=5)
+annotation = pd.read_csv(os.path.join("~/Data/", "caulo", "annotation", 'NC_011916.gff'), sep="\t", skiprows=5)
 annotation['locus_tag'] = np.roll([row['aux'].split(';')[-1][10:] for i, row in annotation.iterrows()], 1)
 annotation = annotation[annotation['type']=='ncRNA']
 annotation.reset_index()
 #annotation.loc[annotation['strand']=='-','start'], annotation.loc[annotation['strand']=='-','stop'] = -1 * annotation[annotation['strand']=='-']['stop'], -1 * annotation[annotation['strand']=='-']['start']
 all_data['caulo']['annotation'] = annotation.copy()
 
-annotation = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets', 'ecoli', 'srna_mg1655.csv'), sep=",")
+annotation = pd.read_csv(os.path.join("~/Data/", "ecoli", "annotation", 'srna_mg1655.csv'), sep=",")
 #annotation.loc[annotation['strand']=='-','start'], annotation.loc[annotation['strand']=='-','stop'] = -1 * annotation[annotation['strand']=='-']['stop'], -1 * annotation[annotation['strand']=='-']['start']
 #print(annotation['start'], annotation['stop'])
 all_data['ecoli']['annotation'] = annotation.copy()

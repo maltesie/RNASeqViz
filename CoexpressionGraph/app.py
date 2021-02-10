@@ -31,8 +31,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(dir_path, "assets", 'mystylesheet.json')) as json_file:
     stylesheet = json.load(json_file)
     
-all_edges = pd.read_csv(os.path.join(dir_path, "assets", 'edges_new.txt'))
-all_nodes = pd.read_csv(os.path.join(dir_path, "assets", 'nodes.txt'), sep="\t")
+all_edges = pd.read_csv(os.path.join("~/Data/vibrio/coexpression/", 'edges_new.txt'))
+all_nodes = pd.read_csv(os.path.join("~/Data/vibrio/coexpression/", 'nodes.txt'), sep="\t")
 #all_edges = all_edges[:500000]
 
 color_count = pd.DataFrame({'count':np.zeros(len(np.unique(all_nodes['color'])))}, index=np.unique(all_nodes['color']))
