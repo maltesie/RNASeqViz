@@ -483,13 +483,14 @@ input[type="button"]:hover {
     display: flex;
     width: 100%;
     justify-content: center;
-    height:680px;
+    height:625px;
+    
 }
 
 #table {
     border-collapse: collapse;
     width:100%;
-    overflow-y:scroll;
+    overflow-y:hidden;
     justify-content: center;
     align-items: center;
 }
@@ -514,14 +515,13 @@ td:last-child {
 /* Graph
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
-#graph-container {
+#alignment-container {
         background-color: #ffffff;
         padding: 5rem;
         margin: 0;
         display: flex;
         width: 100%;
         justify-content: center;
-        height:680px;
     }
     
 #graph {
