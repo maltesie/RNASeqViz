@@ -40,7 +40,7 @@
     position: relative;
     width: 100%;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 10px;
     box-sizing: border-box;
 }
 
@@ -380,7 +380,7 @@ input[type="button"]:hover {
     flex-direction: column;
     justify-content: flex-start;
     align-content: center;
-    width: 500px;
+    width: 300px;
 }
 
 @media only screen and (max-width: 1250px) {
@@ -408,6 +408,10 @@ input[type="button"]:hover {
     align-items:center;
 }
 
+#input-search {
+    width:175px;
+}
+
 #reads-slider {
     min-width:170px;
 }
@@ -426,7 +430,7 @@ input[type="button"]:hover {
 
 .control-element {
     padding-right:20px;
-    min-width:120px;
+    min-width:80px;
 }
 
 .line-label {
@@ -517,15 +521,17 @@ td:last-child {
 
 #alignment-container {
         background-color: #ffffff;
-        padding: 5rem;
+        padding: 1rem;
         margin: 0;
         display: flex;
-        width: 100%;
-        justify-content: center;
+        width: 99%;
+        justify-content: left;
+        justify-items:left;
     }
     
-#graph {
+#my-alignment-viewer {
     flex-grow: 1;
+    width:100%;
 }
 
 /* About Area

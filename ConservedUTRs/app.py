@@ -28,14 +28,23 @@ def table_data(df):
 def get_stripped_sequence(sequence):
     return sequence.replace('-', '')
 
+def clean_msa(sequences):
+    sequence_array = np.array([list(sequence) for sequence in sequences], dtype=object)
+    sequence_array = sequence_array[:,(sequence_array != '-').any(0)]
+    #print(sequences)
+    #print(sequence_array, "test")
+    #print([''.join(seq_vec) for seq_vec in sequence_array])
+    return [''.join(seq_vec) for seq_vec in sequence_array]
+        
 def make_fasta(names, sequences):
     my_fasta = ""
     max_len = 0
-    for name, sequence in zip(names, sequences):
+    clean_sequences = clean_msa(sequences)
+    for name, sequence in zip(names, clean_sequences):
         my_fasta += ">{}\n".format(name)
         joined_seq = ''.join(sequence)
         max_len = max(max_len, len(joined_seq))
-        my_fasta += "{}\n".format(joined_seq)
+        my_fasta += "{}-\n".format(joined_seq)
     return my_fasta, max_len
 
 def get_inserts(sequence):
@@ -53,7 +62,7 @@ def get_inserts(sequence):
     if insert_counter != 0: insertions.append((sequence_counter, insert_counter))
     return insertions
 
-def get_sequence_with_inserts(sequence, inserts, absolute_positions=False):
+def get_sequence_with_inserts(sequence, inserts):
     my_seq = ""
     if not inserts: return sequence
     my_inserts = inserts[::-1]
@@ -66,19 +75,27 @@ def get_sequence_with_inserts(sequence, inserts, absolute_positions=False):
             slice_position = i
             if my_inserts: current_insert = my_inserts.pop()
             else: return my_seq + sequence[i:]
-        if absolute_positions: current_sequence_position += 1
-        elif n != '-': current_sequence_position += 1
+        if n != '-': current_sequence_position += 1
     my_seq += sequence[slice_position:]
     if current_insert[0] == current_sequence_position: my_seq += '-' * current_insert[1]
     return my_seq
 
+def get_sequence_with_absolute_inserts(sequence, inserts):
+    my_seq = str(sequence)
+    if not inserts: return sequence
+    insert_counter = 0
+    for insert in inserts:
+        if insert[0]+insert_counter > len(my_seq) : return my_seq
+        my_seq = my_seq[:insert[0]+insert_counter] + '-' * insert[1] + my_seq[insert[0]+insert_counter:]
+        insert_counter += insert[1]
+    return my_seq
+
 def get_absolute_inserts(sequence, inserts):
-    my_inserts = np.array(inserts)
+    my_inserts = np.array(inserts).reshape(-1,2)
     seq_ins = get_inserts(sequence)
-    for seq_in in seq_ins: my_inserts[my_inserts[:,0] >= seq_in[0]] += seq_in[1]
+    for seq_in in seq_ins: my_inserts[:,0][my_inserts[:,0] >= seq_in[0]] += seq_in[1]
     return [tuple(seq_in) for seq_in in my_inserts]
-    
-        
+
 def multialigned(seqname, alignments):
     if not alignments: return make_fasta(['no_data'], [''])
     if len(alignments) == 1: return make_fasta([seqname, alignments[0][0]], alignments[0][1:3])
@@ -90,25 +107,21 @@ def multialigned(seqname, alignments):
         current_seq_inserts = get_inserts(current_seqaln)
         abs_current_seqaln_inserts = get_absolute_inserts(current_seqaln, seq_inserts)
         abs_new_seqaln_inserts = get_absolute_inserts(seqaln, current_seq_inserts)
-        new_refaln = get_sequence_with_inserts(refaln, abs_current_seqaln_inserts, absolute_positions=True)
-        seqaln = get_sequence_with_inserts(seqaln, seq_inserts)
-        for refaln in refalns: refaln = get_sequence_with_inserts(refaln, abs_new_seqaln_inserts, absolute_positions=True)
+        new_refaln = get_sequence_with_absolute_inserts(current_refaln, abs_current_seqaln_inserts)
+        seqaln = get_sequence_with_inserts(seqaln, current_seq_inserts)
+        for i, aligned_refaln in enumerate(refalns): refalns[i] = get_sequence_with_absolute_inserts(aligned_refaln, abs_new_seqaln_inserts)
         refalns.append(new_refaln)
         species.append(current_species)
     return make_fasta([seqname] + species, [seqaln] + refalns)
-    
-alignments = [
-    ['test1', 'ABCDE-FG', 'ABCDEFFG', 1],
-    ['test2', 'ABCDEFG', 'ABC-EFG', 1],
-    ['test1', 'ABC-DEFG', 'ABCCDEFG', 1],
-    ]
+
 # Load Data
 dataset_paths = []
 dir_path = os.path.dirname(os.path.realpath(__file__))
 df = pd.read_csv("/home/abc/Workspace/ConservedUTRs/alignments/three_alignment_table (copy).csv")
 df["average_score"] = df[[name for name in df.columns if name.endswith("score")]].mean(axis=1)
 df = df.sort_values(by=["average_score"], ascending=False).round(decimals=3)
-data = ">No_Data\n"
+current_df = df.copy()
+no_data = ">No_Data\n"
 
 #Layout
 app.layout = html.Div(
@@ -117,10 +130,8 @@ app.layout = html.Div(
         html.Div(
             id="app-container",
             children=[
-                
                 html.Div(
-                    id='tabs-container',
-                    className="container",
+                    id="left-column",
                     children=[
                         html.Div(
                             id="headline",
@@ -128,6 +139,56 @@ app.layout = html.Div(
                                 html.H3(children="Conserved UTRs"),
                             ],
                         ),
+                        html.Div(
+                            className="container",
+                            children=[
+                                html.Div(
+                                    className="controls-block horizontal",
+                                    children=[
+                                        html.Div(
+                                            className="control-element",
+                                            children=[
+                                                html.P("Pick a color scheme:"),
+                                                dcc.Dropdown(
+                                                    id='dropdown-update-dataset',
+                                                    value='nucleotide',
+                                                    clearable=False,
+                                                    options=[
+                                                        {'label': "nucleotide", 'value': "nucleotide"}
+                                                        
+                                                    ]
+                                                ),
+                                            ]
+                                        ),
+                                    ]
+                                ),
+                            ]
+                        ),
+                        html.Div(
+                            className="container",
+                            children=[
+                                html.Div(
+                                    className="controls-block horizontal",
+                                    children=[
+                                        html.Div(
+                                            className="control-element",
+                                            children=[
+                                                dcc.Input(
+                                                    id='input-search',
+                                                    placeholder = 'Search for gene:'
+                                                ),
+                                            ]
+                                        ),
+                                    ]
+                                ),
+                            ]
+                        )
+                    ],
+                ),
+                html.Div(
+                    id='tabs-container',
+                    className="container",
+                    children=[
                         dcc.Tabs(
                             id='data-tabs', 
                             value='table', 
@@ -148,9 +209,7 @@ app.layout = html.Div(
                                                     columns=[{"name": i[:-6], "id": i} if  i.endswith("score") else {"name": i, "id": i} for i in table_data(df).columns],
                                                     data=table_data(df).to_dict('records'),
                                                     sort_action="native",
-                                                    filter_action='native',
                                                     page_size=100,
-                                                    column_selectable='multi',
                                                     style_header=
                                                     {
                                                     'fontWeight': 'bold',
@@ -185,12 +244,13 @@ app.layout = html.Div(
                                                 )
                                             ]
                                         ),
+                                        
                                         html.Div(
                                             id="alignment-container",
                                             children=[
                                                 dash_bio.AlignmentChart(
                                                     id='my-alignment-viewer',
-                                                    data=data,
+                                                    data=no_data,
                                                     showconservation=False,
                                                     showgap=False,
                                                     colorscale={'A':'#11BB11', 'T':'#CC0000', 'C':'#1111CC', 'G':'#FF8011', '-': '#ffffff'},
@@ -245,31 +305,37 @@ app.layout = html.Div(
                Output('my-alignment-viewer', 'showconsensus')],
               [Input('table', "active_cell"),
                Input('species-checklist', "value")],
-              state=State('table', "page_current"))
-def get_active_alignment(active_cell, checked_species, page_current):
+              state=[State('table', "page_current"),
+                     State('table', "data")])
+def get_active_alignment(active_cell, checked_species, current_page, data):
     if active_cell:
-        if page_current is None: add = 0
-        else: add = page_current * 100
+        if current_page is None: add = 0
+        else: add = (current_page) * 100
         row_index = add + active_cell['row']
+        selected_row = current_df.iloc[row_index]
+        seqname = selected_row['name']
         if active_cell['column_id'] not in ['name', 'length', 'average_score']:
-            my_fasta = ">{}\n{}-\n".format(df.iloc[row_index]['name'], df.iloc[row_index][active_cell['column_id'][0:-6] + "_seqaln"])
-            my_fasta += ">{}\n{}-".format(active_cell['column_id'][0:-6], df.iloc[row_index][active_cell['column_id'][0:-6] + "_refaln"])
-            length = len(df.iloc[row_index][active_cell['column_id'][0:-6] + "_refaln"])
+            species = active_cell['column_id'][0:-6]
+            my_fasta, length = make_fasta([seqname, species], [selected_row[species+'_seqaln'], selected_row[species+'_refaln']])
             consens = False
         elif active_cell['column_id'] in ['name', 'average_score']:
             if checked_species is None: return no_update, no_update, no_update
-            seqname = df.iloc[row_index]['name']
-            alignments = sorted([[species] + list(df[[species + "_seqaln", species + "_refaln", species + "_score"]].iloc[row_index]) for species in checked_species], key=lambda x:x[3], reverse=True)
+            alignments = sorted([[species, selected_row[species + "_seqaln"], selected_row[species + "_refaln"], selected_row[species + "_score"]] for species in checked_species], key=lambda x:x[3], reverse=True)
             my_fasta, length = multialigned(seqname, alignments)
-            #sequences = [df.iloc[row_index]['sequence']] + [df.iloc[row_index][species + "_refaln"] for species in checked_species]
-            #aligned = mult_align(sequences, gop=-100, scale=3.0)
-            #names = [seqname] + [species for species in checked_species]
-            #my_fasta, length = make_fasta(names, sequences)
             consens = True
         else:
             return no_update, no_update, no_update
         return my_fasta, length, consens
     return no_update, no_update, no_update
+
+@app.callback(Output('table', "data"),
+              Input('input-search', "value"))
+def get_filtered_data(search_string):
+    if search_string is None: search_string = ''
+    global current_df
+    current_df = df[df['name'].str.contains("(?i){}".format(search_string))]
+    return table_data(current_df).to_dict('records')
+
 
 if __name__ == '__main__':
     app.run_server(debug=True,port=8083,host='0.0.0.0');
