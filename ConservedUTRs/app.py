@@ -117,7 +117,7 @@ def multialigned(seqname, alignments):
 # Load Data
 dataset_paths = []
 dir_path = os.path.dirname(os.path.realpath(__file__))
-df = pd.read_csv("/home/abc/Workspace/ConservedUTRs/alignments/three_alignment_table (copy).csv")
+df = pd.read_csv("/home/abc/Workspace/ConservedUTRs/vibrio_first_round/alignments/three_alignment_table (copy).csv")
 df["average_score"] = df[[name for name in df.columns if name.endswith("score")]].mean(axis=1)
 df = df.sort_values(by=["average_score"], ascending=False).round(decimals=3)
 current_df = df.copy()
@@ -338,4 +338,4 @@ def get_filtered_data(search_string):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True,port=8083,host='0.0.0.0');
+    app.run_server(port=8083,host='0.0.0.0');

@@ -466,13 +466,13 @@ input[type="button"]:hover {
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
 #table-container {
-    background-color: #252e3f;
+    background-color: #ffffff;
     padding: 5rem;
     margin: 0;
     display: flex;
     width: 100%;
     justify-content: center;
-    height:680px;
+    height:900px;
 }
 
 #table {
@@ -481,6 +481,7 @@ input[type="button"]:hover {
     overflow-y:scroll;
     justify-content: center;
     align-items: center;
+    border: 1px solid #747678;
 }
 
 th,
@@ -500,6 +501,31 @@ td:last-child {
     padding-right: 0;
 }
 
+/* Circos
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+#circos-container {
+        background-color: #ffffff;
+        padding: 5rem;
+        margin: 0;
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        height:900px;
+    }
+    
+#circos {
+    flex-grow: 1;
+}
+
+#save-circos {
+    float: right;
+}
+
+#spacer1 {
+    width:100px;
+}
+
 /* Graph
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
@@ -510,11 +536,12 @@ td:last-child {
         display: flex;
         width: 100%;
         justify-content: center;
-        height:680px;
+        height:900px;
     }
     
 #graph {
-    flex-grow: 1;
+    min-height:100%;
+    flex-grow:1;
 }
 
 /* About Area

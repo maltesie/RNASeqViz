@@ -2,6 +2,7 @@ from dash import Dash, no_update
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_table
+import dash_bio as dashbio
 from dash.dependencies import Input, Output, State
 
 import os
@@ -22,6 +23,33 @@ app = Dash(
 )
 server = app.server
 
+circos_graph_data = [
+    {
+      "color": "#ff5722",
+      "source": {
+        "id": "chr1",
+        "start": 1186054,
+        "end": 1478117
+      },
+      "target": {
+        "id": "chr1",
+        "start": 1550000,
+        "end": 1578117
+      }
+    },
+    {
+      "color": "#ff5722",
+      "source": {
+        "id": "chr1",
+        "start": 1000000,
+        "end": 1100000
+      },
+      "target": {
+        "id": "chr2",
+        "start": 100000,
+        "end": 200000
+      }
+    }]
 
 # Define Helper Functions
 def filter_threshold(df, threshold):
@@ -245,9 +273,70 @@ app.layout = html.Div(
                                                     responsive=True,
                                                     layout={'name':'random'}
                                                 ),
-                                                html.Button('Save', id='save-svg', n_clicks=0)
+                                                html.Button('DOWNLOAD SVG', id='save-svg', n_clicks=0)
                                             ]
                                         ),
+                                    ]
+                                ),
+                                dcc.Tab(
+                                    id="circos-tab",
+                                    className='custom-tab',
+                                    selected_className='custom-tab--selected',
+                                    label='Circos',
+                                    value='circos',
+                                    children=[
+                                        html.Div(
+                                            id="circos-container",
+                                            className="container",
+                                            children=[
+                                                #html.Div(id='spacer1'),
+                                                dashbio.Circos(
+                                                    enableZoomPan=True,
+                                                    enableDownloadSVG=True,
+                                                    id='my-dashbio-circos',
+                                                    config = {
+                                                        'ticks': {
+                                                            'display': True, 
+                                                            'spacing': 100000,
+                                                            'color': '#000',
+                                                            'labelDenominator': 1000000,
+                                                            'labelSuffix': ' Mb',
+                                                            'majorSpacing':5,
+                                                            'minorSpacing':1,
+                                                            'labelSpacing':5
+                                                            }
+                                                        },
+                                                    layout=[
+                                                        {
+                                                          "id": "chr1",
+                                                          "label": "chr1",
+                                                          "color": "#999999",
+                                                          "len": 2961149
+                                                        },
+                                                        {
+                                                          "id": "chr2",
+                                                          "label": "chr2",
+                                                          "color": "#CCCCCC",
+                                                          "len": 1072315
+                                                        }],
+                                                    selectEvent={"0": "hover", "1": "click", "2": "both"},
+                                                    tracks=[{
+                                                        'type': 'CHORDS',
+                                                        'data': circos_graph_data,
+                                                        'config': {
+                                                            'tooltipContent': {
+                                                                'source': 'source',
+                                                                'sourceID': 'id',
+                                                                'target': 'target',
+                                                                'targetID': 'id',
+                                                                'targetEnd': 'end'
+                                                            }
+                                                        }
+                                                    }]
+                                                ),
+                                                #html.Button('Save', id='save-circos', n_clicks=0)
+                                            ]
+                                        )
                                     ]
                                 ),
                                 dcc.Tab(
@@ -454,7 +543,19 @@ def get_image(clicks):
             'action': 'download'
             }
     else: return no_update
-
+"""
+@app.callback(
+    Output("circos", "SVG"),
+    Input('save-circos', 'n_clicks'))
+def get_image_circos(clicks):
+    if clicks>0:
+        return {
+            'type': 'svg',
+            ''
+            'action': 'download'
+            }
+    else: return no_update
+"""
 @app.callback(
     [Output('reads-slider', 'min'),
      Output('reads-slider', 'max'),
@@ -474,4 +575,4 @@ def open_browser():
 
 if __name__ == '__main__':
     #open_browser();
-    app.run_server(debug=False,port=8080,host='0.0.0.0');
+    app.run_server(debug=True,port=8080,host='0.0.0.0');
