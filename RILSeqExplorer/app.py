@@ -4,6 +4,8 @@ import dash_core_components as dcc
 import dash_table
 import dash_bio as dashbio
 from dash.dependencies import Input, Output, State
+import matplotlib.pyplot as plt
+import matplotlib
 
 import os
 import pandas as pd
@@ -23,58 +25,30 @@ app = Dash(
 )
 server = app.server
 
-circos_graph_data = [
-    {
-      "color": "#ff5722",
-      "source": {
-        "id": "chr1",
-        "start": 1186054,
-        "end": 1478117
-      },
-      "target": {
-        "id": "chr1",
-        "start": 1550000,
-        "end": 1578117
-      }
-    },
-    {
-      "color": "#ff5722",
-      "source": {
-        "id": "chr1",
-        "start": 1000000,
-        "end": 1100000
-      },
-      "target": {
-        "id": "chr2",
-        "start": 100000,
-        "end": 200000
-      }
-    }]
-
 # Define Helper Functions
 def filter_threshold(df, threshold):
-    return df[np.log(df['nb_fragments']) > threshold]
+    return df[np.log(df['nb_chimeras']) > threshold]
 
 def filter_targets(df, node):
-    return df[df['gene1'].str.match(node) | df['gene2'].str.match(node)]
+    return df[df['name1'].str.match(node) | df['name2'].str.match(node)]
 
 def filter_cc(df, node):
     g = nx.Graph()
-    g.add_edges_from(zip(df['gene1'], df['gene2']))
+    g.add_edges_from(zip(df['name1'], df['name2']))
     for component in nx.connected_components(g):
         if node in component: break
     search_str = r"{}".format('|'.join(component))
-    return df[df['gene1'].str.match(search_str) | df['gene2'].str.match(search_str)]
+    return df[df['name1'].str.match(search_str) | df['name2'].str.match(search_str)]
 
 def filter_search(df, search_string):
     return df[df['name1'].str.contains(search_string, case=False) | df['name2'].str.contains(search_string, case=False)]
 
 def table_data(df):
-    return df[['name1', 'type1', 'name2', 'type2', 'libs', 'nb_fragments']]
+    return df[['type1', 'name1', 'name2', 'type2', 'in_libs', 'nb_chimeras']]
 
 def fix_ig_label(label):
-    if '|' in label:
-        return '\n'.join(['IG']+label[3:].split('|'))
+    if ':' in label:
+        return '\n'.join(['IG']+label.split(':'))
     else: return label
     
 def translate(value, leftMin, leftMax, rightMin, rightMax):
@@ -94,37 +68,60 @@ def cytoscape_data(df, norm):
     nodes = jsondata["nodes"]
     edges = jsondata["edges"]
     fragment_count = {}
-    current_norm = df['nb_fragments'].sum()
+    current_norm = df['nb_chimeras'].sum()
     types = {}
     
     for i, interaction in df.iterrows():
-        source, target, type_source, type_target, relpos1, relpos2, nb_fragments, from_region, to_region = \
-            interaction[['gene1', 'gene2', 'type1', 'type2', 'relpos1', 'relpos2', 'nb_fragments', 'name1', 'name2']]
-        nb_fragments /= norm
-        pos = max(relpos1, relpos2)
+        source, target, type_source, type_target, nb_chimeras, in_libs = \
+            interaction[['name1', 'name2', 'type1', 'type2', 'nb_chimeras', 'in_libs']]
+        nb_chimeras /= norm
+        pos = 0
         if ((type_target == "srna") != (type_source=="srna")): edge_type = "srna_edge"
         else: edge_type = "other_edge"
         #source = fix_ig_label(source)
         #target = fix_ig_label(target)
-        edges.append({'data': dict(source=source, target=target, fragments=nb_fragments, 
-                                   from_region=from_region, to_region=to_region, pos=pos, typ=edge_type),
+        edges.append({'data': dict(source=source, target=target, fragments=nb_chimeras, pos=pos, typ=edge_type, in_libs=in_libs),
                       'classes': edge_type}) 
         if source in fragment_count: 
-            fragment_count[source] += nb_fragments
+            fragment_count[source] += nb_chimeras
         else: 
-            fragment_count[source] = nb_fragments
+            fragment_count[source] = nb_chimeras
             types[source] = type_source
         
         if target in fragment_count: 
-            fragment_count[target] += nb_fragments
+            fragment_count[target] += nb_chimeras
         else: 
-            fragment_count[target] = nb_fragments
+            fragment_count[target] = nb_chimeras
             types[target] = type_target
             
     for node in fragment_count:
         nodes.append({'data':dict(id=node, name=fix_ig_label(node), fragments=fragment_count[node], current_fragments=fragment_count[node]*norm/current_norm, typ=types[node]), 'classes':types[node]})
     
     return jsondata
+
+def circos_data(df):
+    data = []
+    m = df['nb_chimeras'].max()
+    cmap = plt.get_cmap('binary')
+    for i, interaction in df.iterrows():
+        source, target, nb_chimeras, start1, stop1, start2, stop2, chr1, chr2 = \
+            interaction[['name1', 'name2', 'nb_chimeras', 'left1', 'right1', 'left2', 'right2', 'ref1', 'ref2']]
+        rgb = matplotlib.colors.rgb2hex(cmap((nb_chimeras/m + 3)/4))
+        data.append({
+            'color': rgb,
+            'nb_chimeras': nb_chimeras,
+            "source": {
+                "id": chr1,
+                "start": abs(start1),
+                "end": abs(start1)+1500
+            },
+            "target": {
+                "id": chr2,
+                "start": abs(start2),
+                "end": abs(start2)+1500
+            }
+        })
+    return data
 
 # Load Data
 dataset_paths = []
@@ -139,8 +136,8 @@ with open(os.path.join(dir_path, "assets", 'mystylesheet.json')) as json_file:
 initial_df = pd.read_csv(dataset_paths[0])
 filtered_df = pd.read_csv(dataset_paths[0])
 selected_node = None
-min_edge, max_edge = np.log(initial_df['nb_fragments'].min()), np.log(initial_df['nb_fragments'].max())
-fragments_sum = initial_df['nb_fragments'].sum()
+min_edge, max_edge = np.log(initial_df['nb_chimeras'].min()), np.log(initial_df['nb_chimeras'].max())
+fragments_sum = initial_df['nb_chimeras'].sum()
 elements = cytoscape_data(initial_df[:100], fragments_sum)
 
 app.layout = html.Div(
@@ -170,7 +167,7 @@ app.layout = html.Div(
                                                 html.P("Dataset:"),
                                                 dcc.Dropdown(
                                                     id='dropdown-update-dataset',
-                                                    value=dataset_paths[0],
+                                                    value=dataset_paths[3],
                                                     clearable=False,
                                                     options=[
                                                         {'label': name.split('/')[-1], 'value': name}
@@ -295,6 +292,8 @@ app.layout = html.Div(
                                                     enableDownloadSVG=True,
                                                     id='my-dashbio-circos',
                                                     config = {
+                                                        'gap' : 0.01,
+                                                        'cornerRadius':5,
                                                         'ticks': {
                                                             'display': True, 
                                                             'spacing': 100000,
@@ -308,13 +307,13 @@ app.layout = html.Div(
                                                         },
                                                     layout=[
                                                         {
-                                                          "id": "chr1",
+                                                          "id": "NC_002505",
                                                           "label": "chr1",
                                                           "color": "#999999",
                                                           "len": 2961149
                                                         },
                                                         {
-                                                          "id": "chr2",
+                                                          "id": "NC_002506",
                                                           "label": "chr2",
                                                           "color": "#CCCCCC",
                                                           "len": 1072315
@@ -322,15 +321,11 @@ app.layout = html.Div(
                                                     selectEvent={"0": "hover", "1": "click", "2": "both"},
                                                     tracks=[{
                                                         'type': 'CHORDS',
-                                                        'data': circos_graph_data,
+                                                        'data': circos_data(initial_df),
                                                         'config': {
-                                                            'tooltipContent': {
-                                                                'source': 'source',
-                                                                'sourceID': 'id',
-                                                                'target': 'target',
-                                                                'targetID': 'id',
-                                                                'targetEnd': 'end'
-                                                            }
+                                                            'opacity': 0.9,
+                                                            'color': {'name': 'color'},
+                                                            'tooltipContent': {'name':'nb_chimeras'}
                                                         }
                                                     }]
                                                 ),
@@ -420,6 +415,7 @@ app.layout = html.Div(
 @app.callback(
     [Output('table', 'data'),
     Output('graph', 'elements'),
+    Output('my-dashbio-circos', 'tracks'),
     Output('reads-slider', 'marks')],
     [Input('reads-slider', 'value'),
     Input('filter-radio', 'value'),
@@ -430,7 +426,19 @@ def update_selected_data(slider_value, radio_filter, search_string):
     if (radio_filter == 'targets') and (selected_node is not None): filtered_df = filter_targets(filtered_df, selected_node)
     elif (radio_filter == 'cc') and (selected_node is not None): filtered_df = filter_cc(filtered_df, selected_node)
     if (search_string is not None) and (len(search_string) > 2): filtered_df = filter_search(filtered_df, search_string)
-    return table_data(filtered_df).to_dict('records'), cytoscape_data(filtered_df, fragments_sum), {slider_value: '{} reads'.format(int(np.exp(slider_value)))}
+    
+    tracks=[{
+        'type': 'CHORDS',
+        'data': circos_data(filtered_df),
+        'config': {
+            'logScale': False,
+            'opacity': 0.9,
+            'color': {'name': 'color'},
+            'tooltipContent': {'name': 'nb_chimeras'}
+        }
+    }]
+
+    return table_data(filtered_df).to_dict('records'), cytoscape_data(filtered_df, fragments_sum), tracks, {slider_value: '{} ({})'.format(int(np.exp(slider_value)), len(filtered_df))}
 
 @app.callback(
     [Output('filter-radio', 'options'),
@@ -444,7 +452,7 @@ def set_selected_element(node_data, edge_data, radio_value):
     if (node_data is None) or (node_data == []):
         selected_node = None
         radio_return = [{'label': 'all interactions', 'value': 'all'},
-                        {'label': 'only targets of selected RNA', 'value': 'targets'},
+                        {'label': 'only interactions with selected RNA', 'value': 'targets'},
                         {'label': 'connected component of selected RNA', 'value': 'cc'}]
         text_return = ["Select a node or edge in the graph."]
         if radio_value != 'all': value_return = 'all'
@@ -477,11 +485,11 @@ def set_selected_element(node_data, edge_data, radio_value):
         node_data = node_data[0]
         selected_node = node_data["id"]
         radio_return = [{'label': 'all interactions', 'value': 'all'},
-                        {'label': 'only targets of {}'.format(selected_node), 'value': 'targets'},
+                        {'label': 'only interactions with {}'.format(selected_node), 'value': 'targets'},
                         {'label': 'connected component of {}'.format(selected_node), 'value': 'cc'}]
         selected_node_interactions = filter_targets(filtered_df, selected_node)
-        nb_targets = len(set(list(selected_node_interactions['gene1'])+list(selected_node_interactions['gene2']))) - 1
-        text_return = ["{} is involved in {} interactions with {} targets.".format(selected_node, len(selected_node_interactions), nb_targets)]
+        nb_targets = len(set(list(selected_node_interactions['name1'])+list(selected_node_interactions['name2']))) - 1
+        text_return = ["{} is involved in {} interactions with {} partners.".format(selected_node, len(selected_node_interactions), nb_targets)]
         value_return = no_update
         if node_data['typ'] == 'gene':
             text_return.append(html.Div(className="horizontal deflate", children=[html.P("0%", className="cb-left"),
@@ -492,7 +500,7 @@ def set_selected_element(node_data, edge_data, radio_value):
                                                                                             html.Div(
                                                                                                 className='colorbar-arrow',
                                                                                                 style={
-                                                                                                    'left': '{}%'.format(cb_node_percentage(selected_node_interactions['nb_fragments'].sum()/filtered_df['nb_fragments'].sum())),
+                                                                                                    'left': '{}%'.format(cb_node_percentage(selected_node_interactions['nb_chimeras'].sum()/filtered_df['nb_chimeras'].sum())),
                                                                                                 }
                                                                                             )
                                                                                         ]
@@ -513,7 +521,7 @@ def update_layout(layout):
             'refresh': 10,
             'fit': True,
             'randomize': False,
-            'componentSpacing': 5,
+            'componentSpacing': 10,
             'nodeRepulsion': 5000,
             'edgeElasticity': 0.5,
             'nestingFactor': 0.1,
@@ -543,19 +551,7 @@ def get_image(clicks):
             'action': 'download'
             }
     else: return no_update
-"""
-@app.callback(
-    Output("circos", "SVG"),
-    Input('save-circos', 'n_clicks'))
-def get_image_circos(clicks):
-    if clicks>0:
-        return {
-            'type': 'svg',
-            ''
-            'action': 'download'
-            }
-    else: return no_update
-"""
+
 @app.callback(
     [Output('reads-slider', 'min'),
      Output('reads-slider', 'max'),
@@ -566,8 +562,8 @@ def update_dataset(dataset_path):
     global initial_df, selected_node, fragments_sum
     initial_df = pd.read_csv(dataset_path)
     selected_node = None
-    min_edge, max_edge = np.log(initial_df['nb_fragments'].min()), np.log(initial_df['nb_fragments'].max())
-    fragments_sum = initial_df['nb_fragments'].sum()
+    min_edge, max_edge = np.log(initial_df['nb_chimeras'].min()), np.log(initial_df['nb_chimeras'].max())
+    fragments_sum = initial_df['nb_chimeras'].sum()
     return min_edge - 0.01*min_edge, max_edge + 0.01*max_edge, max_edge/100, min_edge + 0.5*(max_edge-min_edge)
 
 def open_browser():

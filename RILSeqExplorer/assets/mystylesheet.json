@@ -21,19 +21,35 @@
     "text-wrap": "wrap"
   }
 }, {
-  "selector": ".srna",
+  "selector": ".sRNA",
   "style": {
-    "background-color": "CadetBlue"
+    "background-color": "CadetBlue",
+    "font-weight":"bold"
   }
 }, {
-  "selector": ".gene",
+  "selector": ".CDS",
   "style": {
-    "background-color": "mapData(current_fragments, 0, 0.1, BurlyWood, Brown)"
+    "background-color": "BurlyWood",
+    "font-weight":"bold"
   }
  }, {
-  "selector": ".igr",
+  "selector": ".5UTR",
   "style": {
-    "background-color": "Coral"
+    "background-color": "darkred",
+    "color":"lightblue",
+    "font-weight":"bold"
+  }
+ },{
+  "selector": ".3UTR",
+  "style": {
+    "background-color": "darkblue",
+    "color":"lightblue",
+    "font-weight":"bold"
+  }
+ },{
+  "selector": ".IGR",
+  "style": {
+    "background-color": "darkgrey"
   }
 }, {
   "selector": "node[?attr]",
