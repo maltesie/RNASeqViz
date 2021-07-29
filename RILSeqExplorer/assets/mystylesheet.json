@@ -8,10 +8,10 @@
 }, {
   "selector": "node",
   "style": {
-    "width": "mapData(fragments, 0, 0.5, 40, 250)",
-    "height": "mapData(fragments, 0, 0.5, 40, 250)",
+    "width": "mapData(current_fragments, 0, 0.7, 50, 170)",
+    "height": "mapData(current_fragments, 0, 0.7, 50, 170)",
     "content": "data(name)",
-    "font-size": "mapData(fragments, 0, 1, 10px, 60px)",
+    "font-size": "mapData(current_fragments, 0, 0.7, 10px, 40px)",
     "text-valign": "center",
     "text-halign": "center",
     "background-color": "#555",

@@ -54,11 +54,11 @@ def fix_ig_label(label):
 def translate(value, leftMin, leftMax, rightMin, rightMax):
     leftSpan = leftMax - leftMin
     rightSpan = rightMax - rightMin
-    valueScaled = min(max(float(value - leftMin) / float(leftSpan), 0.0), 1.0)
+    valueScaled = min(max(float(value - leftMin) / float(leftSpan), -0.1), 1.1)
     return rightMin + (valueScaled * rightSpan)
 
 def cb_edge_percentage(value):
-    return int(round(translate(value, 0, 1, 18, 76)))
+    return int(round(translate(value, 0, 1, 17, 73)))
 
 def cb_node_percentage(value):
     return int(round(translate(value, 0, 0.1, 14, 72)))
@@ -70,32 +70,48 @@ def cytoscape_data(df, norm):
     fragment_count = {}
     current_norm = df['nb_chimeras'].sum()
     types = {}
-    
+    names = {}
     for i, interaction in df.iterrows():
-        source, target, type_source, type_target, nb_chimeras, in_libs = \
-            interaction[['name1', 'name2', 'type1', 'type2', 'nb_chimeras', 'in_libs']]
+        source, target, type_source, type_target, nb_chimeras, in_libs, pos1, pos2 = \
+            interaction[['name1', 'name2', 'type1', 'type2', 'nb_chimeras', 'in_libs', 'relpos1', 'relpos2']]
         nb_chimeras /= norm
         pos = 0
-        if ((type_target == "srna") != (type_source=="srna")): edge_type = "srna_edge"
-        else: edge_type = "other_edge"
-        #source = fix_ig_label(source)
-        #target = fix_ig_label(target)
-        edges.append({'data': dict(source=source, target=target, fragments=nb_chimeras, pos=pos, typ=edge_type, in_libs=in_libs),
-                      'classes': edge_type}) 
-        if source in fragment_count: 
-            fragment_count[source] += nb_chimeras
-        else: 
-            fragment_count[source] = nb_chimeras
-            types[source] = type_source
         
-        if target in fragment_count: 
-            fragment_count[target] += nb_chimeras
+        if ((type_target == "sRNA") != (type_source=="sRNA")): 
+            edge_type = "srna_edge"
+            if type_target == "5UTR" or type_source == "5UTR":
+                pos = -0.1
+            elif type_target == "3UTR" or type_source == "3UTR":
+                pos = 1.1
+            elif type_target == "IGR" or type_source == "IGR":
+                edge_type = "other_edge"
+            else:
+                if type_target == "sRNA":
+                    pos = pos1
+                else:
+                    pos = pos2          
+        else: edge_type = "other_edge"
+        
+        source_id = source+'#'+type_source
+        target_id = target+'#'+type_target
+        edges.append({'data': dict(source=source_id, target=target_id, fragments=nb_chimeras, pos=pos, typ=edge_type, in_libs=in_libs),
+                      'classes': edge_type}) 
+        if source_id in fragment_count: 
+            fragment_count[source_id] += nb_chimeras
         else: 
-            fragment_count[target] = nb_chimeras
-            types[target] = type_target
+            fragment_count[source_id] = nb_chimeras
+            types[source_id] = type_source
+            names[source_id] = source
+        
+        if target_id in fragment_count: 
+            fragment_count[target_id] += nb_chimeras
+        else: 
+            fragment_count[target_id] = nb_chimeras
+            types[target_id] = type_target
+            names[target_id] = target
             
     for node in fragment_count:
-        nodes.append({'data':dict(id=node, name=fix_ig_label(node), fragments=fragment_count[node], current_fragments=fragment_count[node]*norm/current_norm, typ=types[node]), 'classes':types[node]})
+        nodes.append({'data':dict(id=node, name=fix_ig_label(names[node]), fragments=fragment_count[node], current_fragments=fragment_count[node]*norm/current_norm, typ=types[node]), 'classes':types[node]})
     
     return jsondata
 
@@ -383,21 +399,21 @@ app.layout = html.Div(
                                                                            gene that interacts with the sRNA.", className="text-block")
                                                     ]
                                                 ),
-                                                html.Div(
-                                                    className="controls-block horizontal deflate",
-                                                    children=[
-                                                        html.P("0%", className="cb-left"),
-                                                        
-                                                        html.Div(
-                                                            id = "colorbar-nodes",
-                                                            className="controls-block",
-                                                        ),
-                                                        html.P("10%", className="cb-right"),
-                                                        html.P("sRNA nodes are colored in turquoise. All other nodes follow a relative coloring \
-                                                               scheme that is normalized over the number of reads in the selected, visible graph. \
-                                                                   The scale starts at 0% and is capped at 10%.", className="text-block")
-                                                    ]
-                                                )
+                                              #  html.Div(
+                                              #      className="controls-block horizontal deflate",
+                                              #      children=[
+                                              #          html.P("0%", className="cb-left"),
+                                              #          
+                                              #          html.Div(
+                                              #              id = "colorbar-nodes",
+                                              #              className="controls-block",
+                                              #          ),
+                                              #          html.P("10%", className="cb-right"),
+                                              #          html.P("sRNA nodes are colored in turquoise. All other nodes follow a relative coloring \
+                                              #                 scheme that is normalized over the number of reads in the selected, visible graph. \
+                                              #                     The scale starts at 0% and is capped at 10%.", className="text-block")
+                                              #     ]
+                                              #  )
                                             ]
                                         )
                                     ]
@@ -461,8 +477,7 @@ def set_selected_element(node_data, edge_data, radio_value):
             text_return = ["Select an interaction to display further information."]
         else:  
             edge_data = edge_data[0]
-            text_return = ["reads 1: {}".format(edge_data['source']), html.Br(), 
-                           "reads 2: {}".format(edge_data['target']), html.Br(), 
+            text_return = ["{} -> {}".format(edge_data['source'].split("#")[0], edge_data['target'].split("#")[0]), html.Br(), 
                            "# of reads: {}".format(int(fragments_sum*float(edge_data['fragments'])))]
             value_return = no_update
             if edge_data['typ'] == 'srna_edge':
@@ -483,7 +498,7 @@ def set_selected_element(node_data, edge_data, radio_value):
 
     else: 
         node_data = node_data[0]
-        selected_node = node_data["id"]
+        selected_node = node_data["name"]
         radio_return = [{'label': 'all interactions', 'value': 'all'},
                         {'label': 'only interactions with {}'.format(selected_node), 'value': 'targets'},
                         {'label': 'connected component of {}'.format(selected_node), 'value': 'cc'}]
