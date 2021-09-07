@@ -432,6 +432,36 @@ input[type="button"]:hover {
     flex-direction: column;
 }
 
+#gene-multi-select{
+    width:100%;
+}
+
+#function-multi-select{
+    width:100%;
+}
+
+.spacer{
+    height:40%;
+}
+
+#legend-container{
+    padding-bottom:150px;
+}
+
+.color-legend-item{
+    width:40px;
+    height:40px;
+    border-radius:20px;
+    opacity:80%;
+}
+
+.color-legend-text{
+    padding-top:7px;
+    padding-left:3px;
+    font-weight:bold;
+    font-size:14px;
+}
+
 /* Tabs
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 

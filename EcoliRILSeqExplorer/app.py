@@ -9,12 +9,15 @@ import pandas as pd
 import networkx as nx
 import json
 import numpy as np
+from itertools import combinations
 import webbrowser
 
 import dash_cytoscape as cyto
 cyto.load_extra_layouts()
 
 srna_types = ("sRNA", "ncRNA")
+max_interactions = 300
+fun_colors = ["DarkOliveGreen", "DarkRed", "DarkSlateBlue", "LightCoral", "Khaki"]
 
 app = Dash(
     __name__,
@@ -25,6 +28,7 @@ app = Dash(
 server = app.server
 
 # Define Helper Functions
+
 def filter_threshold(df, threshold):
     return df[np.log(df['nb_ints']) > threshold]
 
@@ -39,8 +43,11 @@ def filter_cc(df, node):
     search_str = r"{}".format('|'.join(component))
     return df[df['name1'].str.match(search_str) | df['name2'].str.match(search_str)]
 
-def filter_search(df, search_string):
-    return df[df['name1'].str.contains(search_string, case=False) | df['name2'].str.contains(search_string, case=False)]
+def filter_search(df, search_strings):
+    index = np.zeros(len(df), dtype=bool)
+    for search_string in search_strings:
+        index |= df['name1'].str.contains(search_string) | df['name2'].str.contains(search_string)
+    return df[index]
 
 def table_data(df):
     return df[['type1', 'name1', 'name2', 'type2', 'in_libs', 'nb_ints']]
@@ -62,7 +69,24 @@ def cb_edge_percentage(value):
 def cb_node_percentage(value):
     return int(round(translate(value, 0, 0.1, 14, 72)))
 
-def cytoscape_data(df, norm):
+def type_by_function(n, t, fs):
+    if fs is None or n not in multifun_data: return t
+    s = "_".join([f for f in fs if f in multifun_data[n]])
+    if len(s) == 0 : return t
+    else: return s
+    
+def all_combinations(l):
+    combs = []
+    for i in range(1, len(l)+1):
+        combs += combinations(l, i)
+    return combs
+
+def shorten(s):
+    if len(s)>14:
+        s=s[:14] + '...'
+    return s
+
+def cytoscape_data(df, norm, selected_functions):
     jsondata = {"nodes": [], "edges": []}
     nodes = jsondata["nodes"]
     edges = jsondata["edges"]
@@ -101,15 +125,17 @@ def cytoscape_data(df, norm):
             fragment_count[source_id] += nb_ints
         else: 
             fragment_count[source_id] = nb_ints
-            types[source_id] = type_source
+            types[source_id] = type_by_function(source, type_source, selected_functions)
             names[source_id] = source
         
         if target_id in fragment_count: 
             fragment_count[target_id] += nb_ints
         else: 
             fragment_count[target_id] = nb_ints
-            types[target_id] = type_target
+            types[target_id] = type_by_function(target, type_target, selected_functions)
             names[target_id] = target
+        
+        if i>max_interactions: break
             
     for node in fragment_count:
         nodes.append({'data':dict(id=node, name=fix_ig_label(names[node]), fragments=fragment_count[node], current_fragments=fragment_count[node]*norm/current_norm, typ=types[node]), 'classes':types[node]})
@@ -140,11 +166,6 @@ def circos_data(df):
         })
     return data
 
-def load_csv(fname):
-    df = pd.read_csv(fname)
-    for i, interaction in df.iterrows():
-        pass
-
 # Load Data
 dataset_paths = []
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -160,7 +181,15 @@ filtered_df = pd.read_csv(dataset_paths[0])
 selected_node = None
 min_edge, max_edge = np.log(initial_df['nb_ints'].min()), np.log(initial_df['nb_ints'].max())
 fragments_sum = initial_df['nb_ints'].sum()
-elements = cytoscape_data(initial_df[:100], fragments_sum)
+elements = cytoscape_data(initial_df[:100], fragments_sum, None)
+
+genes = [{"label":v, "value":v} for v in np.sort(np.unique(np.vstack((initial_df["name1"],initial_df["name2"]))))]
+
+multifun_trans = {row["multi_fun"].replace(".", "-"):row["common_name"] for i, row in pd.read_csv(os.path.join(dir_path, "assets", "multifun_categories.txt"), sep='\t').iterrows()}
+multifun_data = {row["name"]:"_".join([mf.replace(".", "-") for mf in row["multi_fun"].split(":")]) for i, row in pd.read_csv(os.path.join(dir_path, "assets", "multifun_genes.txt"), sep='\t').iterrows() if row["multi_fun"].startswith("BC-")}
+multifun_items = [{"value":key, "label":"{}: {}".format(key, val)} for key, val in multifun_trans.items()]
+
+selected_fun_genes = []
 
 app.layout = html.Div(
     id="root",
@@ -208,10 +237,21 @@ app.layout = html.Div(
                                                     clearable=False,
                                                     options=[
                                                         {'label': name.capitalize(), 'value': name}
-                                                        for name in ['cose-bilkent', 'grid', 'random', 'circle', 'concentric']
+                                                        for name in ['cose', 'grid', 'random', 'circle', 'concentric']
                                                     ]
                                                 )
                                             ]
+                                        )
+                                    ]
+                                ),
+                                html.Div(
+                                    className="controls-block",
+                                    children=[
+                                        html.P("Color by function:"),
+                                        dcc.Dropdown(
+                                            id='function-multi-select',
+                                            options=multifun_items,
+                                            multi=True
                                         )
                                     ]
                                 ),
@@ -239,6 +279,7 @@ app.layout = html.Div(
                                             id='filter-radio',
                                             options=[
                                                 {'label': 'all interactions', 'value': 'all'},
+                                                {'label': 'restrict to selected functions', 'value': 'fun'},
                                                 {'label': 'only targets of selected', 'value': 'targets'},
                                                 {'label': 'connected component of selected', 'value': 'cc'}
                                             ],
@@ -247,12 +288,13 @@ app.layout = html.Div(
                                     ]
                                 ),
                                 html.Div(
-                                    className="controls-block horizontal",
+                                    className="controls-block",
                                     children=[
-                                        html.P("Search:", className="line-label"),
-                                        dcc.Input(
-                                            id="input-search",
-                                            type="text",
+                                        html.P("Search:"),
+                                        dcc.Dropdown(
+                                            id="gene-multi-select",
+                                            options=genes,
+                                            multi=True
                                         )
                                     ]
                                 ),
@@ -290,9 +332,12 @@ app.layout = html.Div(
                                                     elements=elements,
                                                     stylesheet=stylesheet,
                                                     responsive=True,
-                                                    layout={'name':'random'}
+                                                    layout={'name':'random'},
+                                                    minZoom=0.1,
+                                                    maxZoom=5.0
                                                 ),
-                                                html.Button('DOWNLOAD SVG', id='save-svg', n_clicks=0)
+                                                html.Div(
+                                                    children=[html.Button('DOWNLOAD SVG', id='save-svg', n_clicks=0), html.Div(className="spacer"), html.Div(id="legend-container"), html.Div(className="spacer")])
                                             ]
                                         ),
                                     ]
@@ -329,16 +374,10 @@ app.layout = html.Div(
                                                         },
                                                     layout=[
                                                         {
-                                                          "id": "NC_002505",
-                                                          "label": "chr1",
+                                                          "id": "NC_000913.3",
+                                                          "label": "",
                                                           "color": "#999999",
-                                                          "len": 2961149
-                                                        },
-                                                        {
-                                                          "id": "NC_002506",
-                                                          "label": "chr2",
-                                                          "color": "#CCCCCC",
-                                                          "len": 1072315
+                                                          "len": 4641652
                                                         }],
                                                     selectEvent={"0": "hover", "1": "click", "2": "both"},
                                                     tracks=[{
@@ -411,21 +450,13 @@ app.layout = html.Div(
                                                                            gene that interacts with the sRNA.", className="text-block")
                                                     ]
                                                 ),
-                                              #  html.Div(
-                                              #      className="controls-block horizontal deflate",
-                                              #      children=[
-                                              #          html.P("0%", className="cb-left"),
-                                              #          
-                                              #          html.Div(
-                                              #              id = "colorbar-nodes",
-                                              #              className="controls-block",
-                                              #          ),
-                                              #          html.P("10%", className="cb-right"),
-                                              #          html.P("sRNA nodes are colored in turquoise. All other nodes follow a relative coloring \
-                                              #                 scheme that is normalized over the number of reads in the selected, visible graph. \
-                                              #                     The scale starts at 0% and is capped at 10%.", className="text-block")
-                                              #     ]
-                                              #  )
+                                              html.Div(
+                                                    className="controls-block horizontal deflate",
+                                                    id = "test-block",
+                                                    children=[
+                                                        html.P("", className="text-block")
+                                                   ]
+                                                )
                                             ]
                                         )
                                     ]
@@ -448,20 +479,25 @@ def func(n_clicks):
     return dcc.send_data_frame(filtered_df.to_csv, "interactions.csv")
 
 @app.callback(
-    [Output('table', 'data'),
+    [Output("graph", "stylesheet"),
+    Output('table', 'data'),
     Output('graph', 'elements'),
     Output('my-dashbio-circos', 'tracks'),
-    Output('reads-slider', 'marks')],
+    Output('reads-slider', 'marks'),
+    Output('legend-container', 'children')],
     [Input('reads-slider', 'value'),
     Input('filter-radio', 'value'),
-    Input('input-search', 'value')])
-def update_selected_data(slider_value, radio_filter, search_string):
-    global filtered_df
+    Input('gene-multi-select', 'value'),
+    Input('function-multi-select', 'value')])
+def update_selected_data(slider_value, radio_filter, search_strings, functions):
+    global filtered_df, selected_fun_genes
+    if functions is None: selected_fun_genes = []
+    else: selected_fun_genes = [g for g,mfs in multifun_data.items() if any([f in mfs for f in functions])]
     filtered_df = filter_threshold(initial_df, slider_value)
     if (radio_filter == 'targets') and (selected_node is not None): filtered_df = filter_targets(filtered_df, selected_node)
     elif (radio_filter == 'cc') and (selected_node is not None): filtered_df = filter_cc(filtered_df, selected_node)
-    if (search_string is not None) and (len(search_string) > 2): filtered_df = filter_search(filtered_df, search_string)
-    
+    elif radio_filter == 'fun': filtered_df = filter_search(filtered_df, selected_fun_genes)
+    if search_strings is not None and len(search_strings) > 0: filtered_df = filter_search(filtered_df, search_strings)
     tracks=[{
         'type': 'CHORDS',
         'data': circos_data(filtered_df),
@@ -472,8 +508,30 @@ def update_selected_data(slider_value, radio_filter, search_string):
             'tooltipContent': {'name': 'nb_ints'}
         }
     }]
-
-    return table_data(filtered_df).to_dict('records'), cytoscape_data(filtered_df, fragments_sum), tracks, {slider_value: '{} ({})'.format(int(np.exp(slider_value)), len(filtered_df))}
+    if functions is not None:
+        my_stylesheet = stylesheet + [
+            {"selector":"."+"_".join(fun_combination), 
+             "style":{
+                 "background-fill": "linear-gradient",
+                 "background-gradient-stop-colors": " ".join(color_combination),
+                 "background-gradient-direction": "to-right",
+                 "background-blacken":"-0.2",
+                 "font-weight": "bold"
+                 }
+             } 
+            for fun_combination, color_combination in zip(all_combinations(functions), all_combinations(fun_colors[0:len(functions)]))]
+    else:
+        my_stylesheet = stylesheet
+    
+    if functions is not None: legend = [html.Div(className="horizontal", children=[html.Div(className="color-legend-item", 
+                                                                                            style={"background-color":c}), 
+                                                                                   html.P(f, className="color-legend-text")]) for c, f in zip(fun_colors[:len(functions)], functions)]
+    else: legend = []
+    
+    return my_stylesheet, table_data(filtered_df).to_dict('records'), \
+            cytoscape_data(filtered_df, fragments_sum, functions), \
+            tracks, {slider_value: '{} ({})'.format(int(np.exp(slider_value)), len(filtered_df))}, \
+            legend
 
 @app.callback(
     [Output('filter-radio', 'options'),
@@ -481,12 +539,13 @@ def update_selected_data(slider_value, radio_filter, search_string):
      Output('filter-radio', 'value')],
     [Input('graph', 'selectedNodeData'),
      Input('graph', 'selectedEdgeData')],
-     State('filter-radio', 'value'))
+    State('filter-radio', 'value'))
 def set_selected_element(node_data, edge_data, radio_value):
     global selected_node
     if (node_data is None) or (node_data == []):
         selected_node = None
         radio_return = [{'label': 'all interactions', 'value': 'all'},
+                        {'label': 'restrict to selected functions', 'value': 'fun'},
                         {'label': 'only interactions with selected RNA', 'value': 'targets'},
                         {'label': 'connected component of selected RNA', 'value': 'cc'}]
         text_return = ["Select a node or edge in the graph."]
@@ -532,6 +591,7 @@ def set_selected_element(node_data, edge_data, radio_value):
         node_data = node_data[0]
         selected_node = node_data["name"]
         radio_return = [{'label': 'all interactions', 'value': 'all'},
+                        {'label': 'restrict to selected functions', 'value': 'fun'},
                         {'label': 'only interactions with {}'.format(selected_node), 'value': 'targets'},
                         {'label': 'connected component of {}'.format(selected_node), 'value': 'cc'}]
         selected_node_interactions = filter_targets(filtered_df, selected_node)
@@ -606,8 +666,9 @@ def get_image(clicks):
      Output('reads-slider', 'value')],
     Input('dropdown-update-dataset', 'value'))
 def update_dataset(dataset_path):
-    global initial_df, selected_node, fragments_sum
+    global initial_df, selected_node, fragments_sum, genes
     initial_df = pd.read_csv(dataset_path)
+    genes = [{"label":v, "value":v} for v in np.sort(np.unique(np.vstack((initial_df["name1"],initial_df["name2"]))))]
     selected_node = None
     min_edge, max_edge = np.log(initial_df['nb_ints'].min()), np.log(initial_df['nb_ints'].max())
     fragments_sum = initial_df['nb_ints'].sum()
@@ -618,4 +679,4 @@ def open_browser():
 
 if __name__ == '__main__':
     #open_browser();
-    app.run_server(debug=False,port=8080,host='0.0.0.0');
+    app.run_server(debug=True,port=8081,host='0.0.0.0');
