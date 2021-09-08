@@ -250,7 +250,7 @@ app.layout = html.Div(
                                         html.P("Color by function:"),
                                         dcc.Dropdown(
                                             id='function-multi-select',
-                                            options=multifun_items,
+                                            options=[{"label":"top 5 in current graph", "value":"all"}]+multifun_items,
                                             multi=True
                                         )
                                     ]
@@ -484,15 +484,27 @@ def func(n_clicks):
     Output('graph', 'elements'),
     Output('my-dashbio-circos', 'tracks'),
     Output('reads-slider', 'marks'),
-    Output('legend-container', 'children')],
+    Output('legend-container', 'children'),
+    Output('function-multi-select', 'value'),
+    Output('test-block', 'children')],
     [Input('reads-slider', 'value'),
     Input('filter-radio', 'value'),
     Input('gene-multi-select', 'value'),
     Input('function-multi-select', 'value')])
 def update_selected_data(slider_value, radio_filter, search_strings, functions):
     global filtered_df, selected_fun_genes
+    fun_output = no_update
     if functions is None: selected_fun_genes = []
-    else: selected_fun_genes = [g for g,mfs in multifun_data.items() if any([f in mfs for f in functions])]
+    else:
+        if "all" in functions: 
+            all_names = np.unique(np.hstack((filtered_df["name1"][filtered_df["type1"]=="CDS"], filtered_df["name2"][filtered_df["type2"]=="CDS"])))
+            fun_output = []
+            count = {c:0 for c in multifun_trans}
+            for name in all_names: 
+                if name in multifun_data: 
+                    for mf in multifun_data[name].split("_"): count[mf] += 1
+            functions = fun_output = sorted(count, key=count.get, reverse=True)[:5]    
+        selected_fun_genes = [g for g,mfs in multifun_data.items() if any([f in mfs for f in functions])]
     filtered_df = filter_threshold(initial_df, slider_value)
     if (radio_filter == 'targets') and (selected_node is not None): filtered_df = filter_targets(filtered_df, selected_node)
     elif (radio_filter == 'cc') and (selected_node is not None): filtered_df = filter_cc(filtered_df, selected_node)
@@ -531,7 +543,7 @@ def update_selected_data(slider_value, radio_filter, search_strings, functions):
     return my_stylesheet, table_data(filtered_df).to_dict('records'), \
             cytoscape_data(filtered_df, fragments_sum, functions), \
             tracks, {slider_value: '{} ({})'.format(int(np.exp(slider_value)), len(filtered_df))}, \
-            legend
+            legend, fun_output, [html.P(str(fun_output)+str(functions))]
 
 @app.callback(
     [Output('filter-radio', 'options'),
