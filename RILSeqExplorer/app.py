@@ -225,7 +225,7 @@ app.layout = html.Div(
                                                     id='reads-slider',
                                                     min=min_edge - 0.01*min_edge,
                                                     max=max_edge + 0.01*max_edge,
-                                                    step=(max_edge-min_edge)/100,
+                                                    step=(max_edge-min_edge)/200,
                                                     value= min_edge + 0.5*(max_edge-min_edge),
                                                     marks={
                                                         min_edge: '{}'.format(int(np.exp(min_edge))),

@@ -405,6 +405,7 @@ input[type="button"]:hover {
 }
 
 #reads-slider {
+    padding-top:50px;
     min-width:170px;
 }
 
@@ -423,13 +424,16 @@ input[type="button"]:hover {
     margin-top:10px;
 }
 
-#test-output {
+#info-output {
     text-wrap:wrap;
 }
 
-#filter-radio {
-    display: flex;
-    flex-direction: column;
+#check-max-interactions {
+    min-width:120px;
+}
+
+#max-interactions {
+    max-width:60px;
 }
 
 #gene-multi-select{
@@ -438,10 +442,6 @@ input[type="button"]:hover {
 
 #function-multi-select{
     width:100%;
-}
-
-.spacer{
-    height:40%;
 }
 
 #legend-container{
@@ -460,6 +460,7 @@ input[type="button"]:hover {
     padding-left:3px;
     font-weight:bold;
     font-size:14px;
+    white-space:pre-line;
 }
 
 /* Tabs
