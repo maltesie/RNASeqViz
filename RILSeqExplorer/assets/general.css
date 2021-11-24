@@ -405,7 +405,8 @@ input[type="button"]:hover {
 }
 
 #reads-slider {
-    min-width:170px;
+    padding-top:50px;
+    min-width:120px;
 }
 
 .horizontal {
@@ -423,13 +424,43 @@ input[type="button"]:hover {
     margin-top:10px;
 }
 
-#test-output {
+#info-output {
     text-wrap:wrap;
 }
 
-#filter-radio {
-    display: flex;
-    flex-direction: column;
+#check-max-interactions {
+    min-width:120px;
+}
+
+#max-interactions {
+    max-width:60px;
+}
+
+#gene-multi-select{
+    width:100%;
+}
+
+#function-multi-select{
+    width:100%;
+}
+
+#legend-container{
+    padding-bottom:150px;
+}
+
+.color-legend-item{
+    width:40px;
+    height:40px;
+    border-radius:20px;
+    opacity:80%;
+}
+
+.color-legend-text{
+    padding-top:7px;
+    padding-left:3px;
+    font-weight:bold;
+    font-size:14px;
+    white-space:pre-line;
 }
 
 /* Tabs
@@ -594,7 +625,6 @@ td:last-child {
 .cb-middle {
     padding-top:15px;
     padding-left:45%;
-    color: #ffebcd;
 }
 
 .text-block {

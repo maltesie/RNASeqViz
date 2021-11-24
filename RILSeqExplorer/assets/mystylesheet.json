@@ -26,27 +26,13 @@
     "background-color": "CadetBlue",
     "font-weight":"bold"
   }
-}, {
+},{
   "selector": ".CDS",
   "style": {
     "background-color": "BurlyWood",
     "font-weight":"bold"
   }
- }, {
-  "selector": ".5UTR",
-  "style": {
-    "background-color": "darkred",
-    "color":"lightblue",
-    "font-weight":"bold"
-  }
- },{
-  "selector": ".3UTR",
-  "style": {
-    "background-color": "darkblue",
-    "color":"lightblue",
-    "font-weight":"bold"
-  }
- },{
+},{
   "selector": ".IGR",
   "style": {
     "background-color": "darkgrey"
@@ -74,7 +60,6 @@
     "border-width": "6px",
     "border-color": "#AAD8FF",
     "border-opacity": "0.5",
-    "background-color": "#77828C",
     "text-outline-color": "#77828C"
   }
 }, {
@@ -84,7 +69,7 @@
     "opacity": "0.4",
     "target-arrow-shape": "triangle",
     "line-color": "#bbb",
-    "width": "mapData(fragments, 0, 0.3, 1, 40)",
+    "width": "2",
     "overlay-padding": "3px"
   }
 }, {

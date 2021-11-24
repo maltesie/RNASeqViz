@@ -1,0 +1,596 @@
+number	hierarchy	ko_number	description
+KO-1	KO-a1	09100	Metabolism
+KO-1.1	KO-a1.a1	09101	Carbohydrate metabolism
+KO-1.1.1	KO-a1.a1.a1	00010	Glycolysis / Gluconeogenesis
+KO-1.1.2	KO-a1.a1.a2	00020	Citrate cycle (TCA cycle)
+KO-1.1.3	KO-a1.a1.a3	00030	Pentose phosphate pathway
+KO-1.1.4	KO-a1.a1.a4	00040	Pentose and glucuronate interconversions
+KO-1.1.5	KO-a1.a1.a5	00051	Fructose and mannose metabolism
+KO-1.1.6	KO-a1.a1.a6	00052	Galactose metabolism
+KO-1.1.7	KO-a1.a1.a7	00053	Ascorbate and aldarate metabolism
+KO-1.1.8	KO-a1.a1.a8	00500	Starch and sucrose metabolism
+KO-1.1.9	KO-a1.a1.a9	00520	Amino sugar and nucleotide sugar metabolism
+KO-1.1.10	KO-a1.a1.b0	00620	Pyruvate metabolism
+KO-1.1.11	KO-a1.a1.b1	00630	Glyoxylate and dicarboxylate metabolism
+KO-1.1.12	KO-a1.a1.b2	00640	Propanoate metabolism
+KO-1.1.13	KO-a1.a1.b3	00650	Butanoate metabolism
+KO-1.1.14	KO-a1.a1.b4	00660	C5-Branched dibasic acid metabolism
+KO-1.1.15	KO-a1.a1.b5	00562	Inositol phosphate metabolism
+KO-1.2	KO-a1.a2	09102	Energy metabolism
+KO-1.2.1	KO-a1.a2.a1	00190	Oxidative phosphorylation
+KO-1.2.2	KO-a1.a2.a2	00195	Photosynthesis
+KO-1.2.3	KO-a1.a2.a3	00196	Photosynthesis - antenna proteins
+KO-1.2.4	KO-a1.a2.a4	00710	Carbon fixation in photosynthetic organisms
+KO-1.2.5	KO-a1.a2.a5	00720	Carbon fixation pathways in prokaryotes
+KO-1.2.6	KO-a1.a2.a6	00680	Methane metabolism
+KO-1.2.7	KO-a1.a2.a7	00910	Nitrogen metabolism
+KO-1.2.8	KO-a1.a2.a8	00920	Sulfur metabolism
+KO-1.3	KO-a1.a3	09103	Lipid metabolism
+KO-1.3.1	KO-a1.a3.a1	00061	Fatty acid biosynthesis
+KO-1.3.2	KO-a1.a3.a2	00062	Fatty acid elongation
+KO-1.3.3	KO-a1.a3.a3	00071	Fatty acid degradation
+KO-1.3.4	KO-a1.a3.a4	00073	Cutin, suberine and wax biosynthesis
+KO-1.3.5	KO-a1.a3.a5	00100	Steroid biosynthesis
+KO-1.3.6	KO-a1.a3.a6	00120	Primary bile acid biosynthesis
+KO-1.3.7	KO-a1.a3.a7	00121	Secondary bile acid biosynthesis
+KO-1.3.8	KO-a1.a3.a8	00140	Steroid hormone biosynthesis
+KO-1.3.9	KO-a1.a3.a9	00561	Glycerolipid metabolism
+KO-1.3.10	KO-a1.a3.b0	00564	Glycerophospholipid metabolism
+KO-1.3.11	KO-a1.a3.b1	00565	Ether lipid metabolism
+KO-1.3.12	KO-a1.a3.b2	00600	Sphingolipid metabolism
+KO-1.3.13	KO-a1.a3.b3	00590	Arachidonic acid metabolism
+KO-1.3.14	KO-a1.a3.b4	00591	Linoleic acid metabolism
+KO-1.3.15	KO-a1.a3.b5	00592	alpha-Linolenic acid metabolism
+KO-1.3.16	KO-a1.a3.b6	01040	Biosynthesis of unsaturated fatty acids
+KO-1.4	KO-a1.a4	09104	Nucleotide metabolism
+KO-1.4.1	KO-a1.a4.a1	00230	Purine metabolism
+KO-1.4.2	KO-a1.a4.a2	00240	Pyrimidine metabolism
+KO-1.5	KO-a1.a5	09105	Amino acid metabolism
+KO-1.5.1	KO-a1.a5.a1	00250	Alanine, aspartate and glutamate metabolism
+KO-1.5.2	KO-a1.a5.a2	00260	Glycine, serine and threonine metabolism
+KO-1.5.3	KO-a1.a5.a3	00270	Cysteine and methionine metabolism
+KO-1.5.4	KO-a1.a5.a4	00280	Valine, leucine and isoleucine degradation
+KO-1.5.5	KO-a1.a5.a5	00290	Valine, leucine and isoleucine biosynthesis
+KO-1.5.6	KO-a1.a5.a6	00300	Lysine biosynthesis
+KO-1.5.7	KO-a1.a5.a7	00310	Lysine degradation
+KO-1.5.8	KO-a1.a5.a8	00220	Arginine biosynthesis
+KO-1.5.9	KO-a1.a5.a9	00330	Arginine and proline metabolism
+KO-1.5.10	KO-a1.a5.b0	00340	Histidine metabolism
+KO-1.5.11	KO-a1.a5.b1	00350	Tyrosine metabolism
+KO-1.5.12	KO-a1.a5.b2	00360	Phenylalanine metabolism
+KO-1.5.13	KO-a1.a5.b3	00380	Tryptophan metabolism
+KO-1.5.14	KO-a1.a5.b4	00400	Phenylalanine, tyrosine and tryptophan biosynthesis
+KO-1.6	KO-a1.a6	09106	Metabolism of other amino acids
+KO-1.6.1	KO-a1.a6.a1	00410	beta-Alanine metabolism
+KO-1.6.2	KO-a1.a6.a2	00430	Taurine and hypotaurine metabolism
+KO-1.6.3	KO-a1.a6.a3	00440	Phosphonate and phosphinate metabolism
+KO-1.6.4	KO-a1.a6.a4	00450	Selenocompound metabolism
+KO-1.6.5	KO-a1.a6.a5	00460	Cyanoamino acid metabolism
+KO-1.6.6	KO-a1.a6.a6	00470	D-Amino acid metabolism
+KO-1.6.7	KO-a1.a6.a7	00480	Glutathione metabolism
+KO-1.7	KO-a1.a7	09107	Glycan biosynthesis and metabolism
+KO-1.7.1	KO-a1.a7.a1	00510	N-Glycan biosynthesis
+KO-1.7.2	KO-a1.a7.a2	00513	Various types of N-glycan biosynthesis
+KO-1.7.3	KO-a1.a7.a3	00512	Mucin type O-glycan biosynthesis
+KO-1.7.4	KO-a1.a7.a4	00515	Mannose type O-glycan biosynthesis
+KO-1.7.5	KO-a1.a7.a5	00514	Other types of O-glycan biosynthesis
+KO-1.7.6	KO-a1.a7.a6	00532	Glycosaminoglycan biosynthesis - chondroitin sulfate / dermatan sulfate
+KO-1.7.7	KO-a1.a7.a7	00534	Glycosaminoglycan biosynthesis - heparan sulfate / heparin
+KO-1.7.8	KO-a1.a7.a8	00533	Glycosaminoglycan biosynthesis - keratan sulfate
+KO-1.7.9	KO-a1.a7.a9	00531	Glycosaminoglycan degradation
+KO-1.7.10	KO-a1.a7.b0	00563	Glycosylphosphatidylinositol (GPI)-anchor biosynthesis
+KO-1.7.11	KO-a1.a7.b1	00601	Glycosphingolipid biosynthesis - lacto and neolacto series
+KO-1.7.12	KO-a1.a7.b2	00603	Glycosphingolipid biosynthesis - globo and isoglobo series
+KO-1.7.13	KO-a1.a7.b3	00604	Glycosphingolipid biosynthesis - ganglio series
+KO-1.7.14	KO-a1.a7.b4	00540	Lipopolysaccharide biosynthesis
+KO-1.7.15	KO-a1.a7.b5	00542	O-Antigen repeat unit biosynthesis
+KO-1.7.16	KO-a1.a7.b6	00541	O-Antigen nucleotide sugar biosynthesis
+KO-1.7.17	KO-a1.a7.b7	00550	Peptidoglycan biosynthesis
+KO-1.7.18	KO-a1.a7.b8	00511	Other glycan degradation
+KO-1.7.19	KO-a1.a7.b9	00571	Lipoarabinomannan (LAM) biosynthesis
+KO-1.7.20	KO-a1.a7.c0	00572	Arabinogalactan biosynthesis - Mycobacterium
+KO-1.8	KO-a1.a8	09108	Metabolism of cofactors and vitamins
+KO-1.8.1	KO-a1.a8.a1	00730	Thiamine metabolism
+KO-1.8.2	KO-a1.a8.a2	00740	Riboflavin metabolism
+KO-1.8.3	KO-a1.a8.a3	00750	Vitamin B6 metabolism
+KO-1.8.4	KO-a1.a8.a4	00760	Nicotinate and nicotinamide metabolism
+KO-1.8.5	KO-a1.a8.a5	00770	Pantothenate and CoA biosynthesis
+KO-1.8.6	KO-a1.a8.a6	00780	Biotin metabolism
+KO-1.8.7	KO-a1.a8.a7	00785	Lipoic acid metabolism
+KO-1.8.8	KO-a1.a8.a8	00790	Folate biosynthesis
+KO-1.8.9	KO-a1.a8.a9	00670	One carbon pool by folate
+KO-1.8.10	KO-a1.a8.b0	00830	Retinol metabolism
+KO-1.8.11	KO-a1.a8.b1	00860	Porphyrin and chlorophyll metabolism
+KO-1.8.12	KO-a1.a8.b2	00130	Ubiquinone and other terpenoid-quinone biosynthesis
+KO-1.9	KO-a1.a9	09109	Metabolism of terpenoids and polyketides
+KO-1.9.1	KO-a1.a9.a1	00900	Terpenoid backbone biosynthesis
+KO-1.9.2	KO-a1.a9.a2	00902	Monoterpenoid biosynthesis
+KO-1.9.3	KO-a1.a9.a3	00909	Sesquiterpenoid and triterpenoid biosynthesis
+KO-1.9.4	KO-a1.a9.a4	00904	Diterpenoid biosynthesis
+KO-1.9.5	KO-a1.a9.a5	00906	Carotenoid biosynthesis
+KO-1.9.6	KO-a1.a9.a6	00905	Brassinosteroid biosynthesis
+KO-1.9.7	KO-a1.a9.a7	00981	Insect hormone biosynthesis
+KO-1.9.8	KO-a1.a9.a8	00908	Zeatin biosynthesis
+KO-1.9.9	KO-a1.a9.a9	00903	Limonene and pinene degradation
+KO-1.9.10	KO-a1.a9.b0	00281	Geraniol degradation
+KO-1.9.11	KO-a1.a9.b1	01052	Type I polyketide structures
+KO-1.9.12	KO-a1.a9.b2	00522	Biosynthesis of 12-, 14- and 16-membered macrolides
+KO-1.9.13	KO-a1.a9.b3	01051	Biosynthesis of ansamycins
+KO-1.9.14	KO-a1.a9.b4	01059	Biosynthesis of enediyne antibiotics
+KO-1.9.15	KO-a1.a9.b5	01056	Biosynthesis of type II polyketide backbone
+KO-1.9.16	KO-a1.a9.b6	01057	Biosynthesis of type II polyketide products
+KO-1.9.17	KO-a1.a9.b7	00253	Tetracycline biosynthesis
+KO-1.9.18	KO-a1.a9.b8	00523	Polyketide sugar unit biosynthesis
+KO-1.9.19	KO-a1.a9.b9	01054	Nonribosomal peptide structures
+KO-1.9.20	KO-a1.a9.c0	01053	Biosynthesis of siderophore group nonribosomal peptides
+KO-1.9.21	KO-a1.a9.c1	01055	Biosynthesis of vancomycin group antibiotics
+KO-1.10	KO-a1.b0	09110	Biosynthesis of other secondary metabolites
+KO-1.10.1	KO-a1.b0.a1	00940	Phenylpropanoid biosynthesis
+KO-1.10.2	KO-a1.b0.a2	00945	Stilbenoid, diarylheptanoid and gingerol biosynthesis
+KO-1.10.3	KO-a1.b0.a3	00941	Flavonoid biosynthesis
+KO-1.10.4	KO-a1.b0.a4	00944	Flavone and flavonol biosynthesis
+KO-1.10.5	KO-a1.b0.a5	00942	Anthocyanin biosynthesis
+KO-1.10.6	KO-a1.b0.a6	00943	Isoflavonoid biosynthesis
+KO-1.10.7	KO-a1.b0.a7	00901	Indole alkaloid biosynthesis
+KO-1.10.8	KO-a1.b0.a8	00403	Indole diterpene alkaloid biosynthesis
+KO-1.10.9	KO-a1.b0.a9	00950	Isoquinoline alkaloid biosynthesis
+KO-1.10.10	KO-a1.b0.b0	00960	Tropane, piperidine and pyridine alkaloid biosynthesis
+KO-1.10.11	KO-a1.b0.b1	01058	Acridone alkaloid biosynthesis
+KO-1.10.12	KO-a1.b0.b2	00232	Caffeine metabolism
+KO-1.10.13	KO-a1.b0.b3	00965	Betalain biosynthesis
+KO-1.10.14	KO-a1.b0.b4	00966	Glucosinolate biosynthesis
+KO-1.10.15	KO-a1.b0.b5	00402	Benzoxazinoid biosynthesis
+KO-1.10.16	KO-a1.b0.b6	00311	Penicillin and cephalosporin biosynthesis
+KO-1.10.17	KO-a1.b0.b7	00332	Carbapenem biosynthesis
+KO-1.10.18	KO-a1.b0.b8	00261	Monobactam biosynthesis
+KO-1.10.19	KO-a1.b0.b9	00331	Clavulanic acid biosynthesis
+KO-1.10.20	KO-a1.b0.c0	00521	Streptomycin biosynthesis
+KO-1.10.21	KO-a1.b0.c1	00524	Neomycin, kanamycin and gentamicin biosynthesis
+KO-1.10.22	KO-a1.b0.c2	00525	Acarbose and validamycin biosynthesis
+KO-1.10.23	KO-a1.b0.c3	00401	Novobiocin biosynthesis
+KO-1.10.24	KO-a1.b0.c4	00404	Staurosporine biosynthesis
+KO-1.10.25	KO-a1.b0.c5	00405	Phenazine biosynthesis
+KO-1.10.26	KO-a1.b0.c6	00333	Prodigiosin biosynthesis
+KO-1.10.27	KO-a1.b0.c7	00254	Aflatoxin biosynthesis
+KO-1.10.28	KO-a1.b0.c8	00999	Biosynthesis of various secondary metabolites - part 1
+KO-1.10.29	KO-a1.b0.c9	00998	Biosynthesis of various secondary metabolites - part 2
+KO-1.10.30	KO-a1.b0.d0	00997	Biosynthesis of various secondary metabolites - part 3
+KO-1.11	KO-a1.b1	09111	Xenobiotics biodegradation and metabolism
+KO-1.11.1	KO-a1.b1.a1	00362	Benzoate degradation
+KO-1.11.2	KO-a1.b1.a2	00627	Aminobenzoate degradation
+KO-1.11.3	KO-a1.b1.a3	00364	Fluorobenzoate degradation
+KO-1.11.4	KO-a1.b1.a4	00625	Chloroalkane and chloroalkene degradation
+KO-1.11.5	KO-a1.b1.a5	00361	Chlorocyclohexane and chlorobenzene degradation
+KO-1.11.6	KO-a1.b1.a6	00623	Toluene degradation
+KO-1.11.7	KO-a1.b1.a7	00622	Xylene degradation
+KO-1.11.8	KO-a1.b1.a8	00633	Nitrotoluene degradation
+KO-1.11.9	KO-a1.b1.a9	00642	Ethylbenzene degradation
+KO-1.11.10	KO-a1.b1.b0	00643	Styrene degradation
+KO-1.11.11	KO-a1.b1.b1	00791	Atrazine degradation
+KO-1.11.12	KO-a1.b1.b2	00930	Caprolactam degradation
+KO-1.11.13	KO-a1.b1.b3	00363	Bisphenol degradation
+KO-1.11.14	KO-a1.b1.b4	00621	Dioxin degradation
+KO-1.11.15	KO-a1.b1.b5	00626	Naphthalene degradation
+KO-1.11.16	KO-a1.b1.b6	00624	Polycyclic aromatic hydrocarbon degradation
+KO-1.11.17	KO-a1.b1.b7	00365	Furfural degradation
+KO-1.11.18	KO-a1.b1.b8	00984	Steroid degradation
+KO-1.11.19	KO-a1.b1.b9	00980	Metabolism of xenobiotics by cytochrome P450
+KO-1.11.20	KO-a1.b1.c0	00982	Drug metabolism - cytochrome P450
+KO-1.11.21	KO-a1.b1.c1	00983	Drug metabolism - other enzymes
+KO-1.12	KO-a1.b2	09112	Not included in regular maps
+KO-1.12.1	KO-a1.b2.a1	09113	Global maps only
+KO-2	KO-a2	09120	Genetic Information Processing
+KO-2.1	KO-a2.a1	09121	Transcription
+KO-2.1.1	KO-a2.a1.a1	03020	RNA polymerase
+KO-2.1.2	KO-a2.a1.a2	03022	Basal transcription factors
+KO-2.1.3	KO-a2.a1.a3	03040	Spliceosome
+KO-2.2	KO-a2.a2	09122	Translation
+KO-2.2.1	KO-a2.a2.a1	03010	Ribosome
+KO-2.2.2	KO-a2.a2.a2	00970	Aminoacyl-tRNA biosynthesis
+KO-2.2.3	KO-a2.a2.a3	03013	Nucleocytoplasmic transport
+KO-2.2.4	KO-a2.a2.a4	03015	mRNA surveillance pathway
+KO-2.2.5	KO-a2.a2.a5	03008	Ribosome biogenesis in eukaryotes
+KO-2.3	KO-a2.a3	09123	Folding, sorting and degradation
+KO-2.3.1	KO-a2.a3.a1	03060	Protein export
+KO-2.3.2	KO-a2.a3.a2	04141	Protein processing in endoplasmic reticulum
+KO-2.3.3	KO-a2.a3.a3	04130	SNARE interactions in vesicular transport
+KO-2.3.4	KO-a2.a3.a4	04120	Ubiquitin mediated proteolysis
+KO-2.3.5	KO-a2.a3.a5	04122	Sulfur relay system
+KO-2.3.6	KO-a2.a3.a6	03050	Proteasome
+KO-2.3.7	KO-a2.a3.a7	03018	RNA degradation
+KO-2.4	KO-a2.a4	09124	Replication and repair
+KO-2.4.1	KO-a2.a4.a1	03030	DNA replication
+KO-2.4.2	KO-a2.a4.a2	03410	Base excision repair
+KO-2.4.3	KO-a2.a4.a3	03420	Nucleotide excision repair
+KO-2.4.4	KO-a2.a4.a4	03430	Mismatch repair
+KO-2.4.5	KO-a2.a4.a5	03440	Homologous recombination
+KO-2.4.6	KO-a2.a4.a6	03450	Non-homologous end-joining
+KO-2.4.7	KO-a2.a4.a7	03460	Fanconi anemia pathway
+KO-2.5	KO-a2.a5	09125	Information processing in viruses
+KO-2.5.1	KO-a2.a5.a1	03230	Viral genome structure
+KO-3	KO-a3	09130	Environmental Information Processing
+KO-3.1	KO-a3.a1	09131	Membrane transport
+KO-3.1.1	KO-a3.a1.a1	02010	ABC transporters
+KO-3.1.2	KO-a3.a1.a2	02060	Phosphotransferase system (PTS)
+KO-3.1.3	KO-a3.a1.a3	03070	Bacterial secretion system
+KO-3.2	KO-a3.a2	09132	Signal transduction
+KO-3.2.1	KO-a3.a2.a1	02020	Two-component system
+KO-3.2.2	KO-a3.a2.a2	04010	MAPK signaling pathway
+KO-3.2.3	KO-a3.a2.a3	04013	MAPK signaling pathway - fly
+KO-3.2.4	KO-a3.a2.a4	04016	MAPK signaling pathway - plant
+KO-3.2.5	KO-a3.a2.a5	04011	MAPK signaling pathway - yeast
+KO-3.2.6	KO-a3.a2.a6	04012	ErbB signaling pathway
+KO-3.2.7	KO-a3.a2.a7	04014	Ras signaling pathway
+KO-3.2.8	KO-a3.a2.a8	04015	Rap1 signaling pathway
+KO-3.2.9	KO-a3.a2.a9	04310	Wnt signaling pathway
+KO-3.2.10	KO-a3.a2.b0	04330	Notch signaling pathway
+KO-3.2.11	KO-a3.a2.b1	04340	Hedgehog signaling pathway
+KO-3.2.12	KO-a3.a2.b2	04341	Hedgehog signaling pathway - fly
+KO-3.2.13	KO-a3.a2.b3	04350	TGF-beta signaling pathway
+KO-3.2.14	KO-a3.a2.b4	04390	Hippo signaling pathway
+KO-3.2.15	KO-a3.a2.b5	04391	Hippo signaling pathway - fly
+KO-3.2.16	KO-a3.a2.b6	04392	Hippo signaling pathway - multiple species
+KO-3.2.17	KO-a3.a2.b7	04370	VEGF signaling pathway
+KO-3.2.18	KO-a3.a2.b8	04371	Apelin signaling pathway
+KO-3.2.19	KO-a3.a2.b9	04630	JAK-STAT signaling pathway
+KO-3.2.20	KO-a3.a2.c0	04064	NF-kappa B signaling pathway
+KO-3.2.21	KO-a3.a2.c1	04668	TNF signaling pathway
+KO-3.2.22	KO-a3.a2.c2	04066	HIF-1 signaling pathway
+KO-3.2.23	KO-a3.a2.c3	04068	FoxO signaling pathway
+KO-3.2.24	KO-a3.a2.c4	04020	Calcium signaling pathway
+KO-3.2.25	KO-a3.a2.c5	04070	Phosphatidylinositol signaling system
+KO-3.2.26	KO-a3.a2.c6	04072	Phospholipase D signaling pathway
+KO-3.2.27	KO-a3.a2.c7	04071	Sphingolipid signaling pathway
+KO-3.2.28	KO-a3.a2.c8	04024	cAMP signaling pathway
+KO-3.2.29	KO-a3.a2.c9	04022	cGMP-PKG signaling pathway
+KO-3.2.30	KO-a3.a2.d0	04151	PI3K-Akt signaling pathway
+KO-3.2.31	KO-a3.a2.d1	04152	AMPK signaling pathway
+KO-3.2.32	KO-a3.a2.d2	04150	mTOR signaling pathway
+KO-3.2.33	KO-a3.a2.d3	04075	Plant hormone signal transduction
+KO-3.3	KO-a3.a3	09133	Signaling molecules and interaction
+KO-3.3.1	KO-a3.a3.a1	04080	Neuroactive ligand-receptor interaction
+KO-3.3.2	KO-a3.a3.a2	04060	Cytokine-cytokine receptor interaction
+KO-3.3.3	KO-a3.a3.a3	04061	Viral protein interaction with cytokine and cytokine receptor
+KO-3.3.4	KO-a3.a3.a4	04512	ECM-receptor interaction
+KO-3.3.5	KO-a3.a3.a5	04514	Cell adhesion molecules
+KO-4	KO-a4	09140	Cellular Processes
+KO-4.1	KO-a4.a1	09141	Transport and catabolism
+KO-4.1.1	KO-a4.a1.a1	04144	Endocytosis
+KO-4.1.2	KO-a4.a1.a2	04145	Phagosome
+KO-4.1.3	KO-a4.a1.a3	04142	Lysosome
+KO-4.1.4	KO-a4.a1.a4	04146	Peroxisome
+KO-4.1.5	KO-a4.a1.a5	04140	Autophagy - animal
+KO-4.1.6	KO-a4.a1.a6	04138	Autophagy - yeast
+KO-4.1.7	KO-a4.a1.a7	04136	Autophagy - other
+KO-4.1.8	KO-a4.a1.a8	04137	Mitophagy - animal
+KO-4.1.9	KO-a4.a1.a9	04139	Mitophagy - yeast
+KO-4.2	KO-a4.a2	09143	Cell growth and death
+KO-4.2.1	KO-a4.a2.a1	04110	Cell cycle
+KO-4.2.2	KO-a4.a2.a2	04111	Cell cycle - yeast
+KO-4.2.3	KO-a4.a2.a3	04112	Cell cycle - Caulobacter
+KO-4.2.4	KO-a4.a2.a4	04113	Meiosis - yeast
+KO-4.2.5	KO-a4.a2.a5	04114	Oocyte meiosis
+KO-4.2.6	KO-a4.a2.a6	04210	Apoptosis
+KO-4.2.7	KO-a4.a2.a7	04214	Apoptosis - fly
+KO-4.2.8	KO-a4.a2.a8	04215	Apoptosis - multiple species
+KO-4.2.9	KO-a4.a2.a9	04216	Ferroptosis
+KO-4.2.10	KO-a4.a2.b0	04217	Necroptosis
+KO-4.2.11	KO-a4.a2.b1	04115	p53 signaling pathway
+KO-4.2.12	KO-a4.a2.b2	04218	Cellular senescence
+KO-4.3	KO-a4.a3	09144	Cellular community - eukaryotes
+KO-4.3.1	KO-a4.a3.a1	04510	Focal adhesion
+KO-4.3.2	KO-a4.a3.a2	04520	Adherens junction
+KO-4.3.3	KO-a4.a3.a3	04530	Tight junction
+KO-4.3.4	KO-a4.a3.a4	04540	Gap junction
+KO-4.3.5	KO-a4.a3.a5	04550	Signaling pathways regulating pluripotency of stem cells
+KO-4.4	KO-a4.a4	09145	Cellular community - prokaryotes
+KO-4.4.1	KO-a4.a4.a1	02024	Quorum sensing
+KO-4.4.2	KO-a4.a4.a2	05111	Biofilm formation - Vibrio cholerae
+KO-4.4.3	KO-a4.a4.a3	02025	Biofilm formation - Pseudomonas aeruginosa
+KO-4.4.4	KO-a4.a4.a4	02026	Biofilm formation - Escherichia coli
+KO-4.5	KO-a4.a5	09142	Cell motility
+KO-4.5.1	KO-a4.a5.a1	02030	Bacterial chemotaxis
+KO-4.5.2	KO-a4.a5.a2	02040	Flagellar assembly
+KO-4.5.3	KO-a4.a5.a3	04810	Regulation of actin cytoskeleton
+KO-5	KO-a5	09150	Organismal Systems
+KO-5.1	KO-a5.a1	09151	Immune system
+KO-5.1.1	KO-a5.a1.a1	04640	Hematopoietic cell lineage
+KO-5.1.2	KO-a5.a1.a2	04610	Complement and coagulation cascades
+KO-5.1.3	KO-a5.a1.a3	04611	Platelet activation
+KO-5.1.4	KO-a5.a1.a4	04613	Neutrophil extracellular trap formation
+KO-5.1.5	KO-a5.a1.a5	04620	Toll-like receptor signaling pathway
+KO-5.1.6	KO-a5.a1.a6	04624	Toll and Imd signaling pathway
+KO-5.1.7	KO-a5.a1.a7	04621	NOD-like receptor signaling pathway
+KO-5.1.8	KO-a5.a1.a8	04622	RIG-I-like receptor signaling pathway
+KO-5.1.9	KO-a5.a1.a9	04623	Cytosolic DNA-sensing pathway
+KO-5.1.10	KO-a5.a1.b0	04625	C-type lectin receptor signaling pathway
+KO-5.1.11	KO-a5.a1.b1	04650	Natural killer cell mediated cytotoxicity
+KO-5.1.12	KO-a5.a1.b2	04612	Antigen processing and presentation
+KO-5.1.13	KO-a5.a1.b3	04660	T cell receptor signaling pathway
+KO-5.1.14	KO-a5.a1.b4	04658	Th1 and Th2 cell differentiation
+KO-5.1.15	KO-a5.a1.b5	04659	Th17 cell differentiation
+KO-5.1.16	KO-a5.a1.b6	04657	IL-17 signaling pathway
+KO-5.1.17	KO-a5.a1.b7	04662	B cell receptor signaling pathway
+KO-5.1.18	KO-a5.a1.b8	04664	Fc epsilon RI signaling pathway
+KO-5.1.19	KO-a5.a1.b9	04666	Fc gamma R-mediated phagocytosis
+KO-5.1.20	KO-a5.a1.c0	04670	Leukocyte transendothelial migration
+KO-5.1.21	KO-a5.a1.c1	04672	Intestinal immune network for IgA production
+KO-5.1.22	KO-a5.a1.c2	04062	Chemokine signaling pathway
+KO-5.2	KO-a5.a2	09152	Endocrine system
+KO-5.2.1	KO-a5.a2.a1	04911	Insulin secretion
+KO-5.2.2	KO-a5.a2.a2	04910	Insulin signaling pathway
+KO-5.2.3	KO-a5.a2.a3	04922	Glucagon signaling pathway
+KO-5.2.4	KO-a5.a2.a4	04923	Regulation of lipolysis in adipocytes
+KO-5.2.5	KO-a5.a2.a5	04920	Adipocytokine signaling pathway
+KO-5.2.6	KO-a5.a2.a6	03320	PPAR signaling pathway
+KO-5.2.7	KO-a5.a2.a7	04929	GnRH secretion
+KO-5.2.8	KO-a5.a2.a8	04912	GnRH signaling pathway
+KO-5.2.9	KO-a5.a2.a9	04913	Ovarian steroidogenesis
+KO-5.2.10	KO-a5.a2.b0	04915	Estrogen signaling pathway
+KO-5.2.11	KO-a5.a2.b1	04914	Progesterone-mediated oocyte maturation
+KO-5.2.12	KO-a5.a2.b2	04917	Prolactin signaling pathway
+KO-5.2.13	KO-a5.a2.b3	04921	Oxytocin signaling pathway
+KO-5.2.14	KO-a5.a2.b4	04926	Relaxin signaling pathway
+KO-5.2.15	KO-a5.a2.b5	04935	Growth hormone synthesis, secretion and action
+KO-5.2.16	KO-a5.a2.b6	04918	Thyroid hormone synthesis
+KO-5.2.17	KO-a5.a2.b7	04919	Thyroid hormone signaling pathway
+KO-5.2.18	KO-a5.a2.b8	04928	Parathyroid hormone synthesis, secretion and action
+KO-5.2.19	KO-a5.a2.b9	04916	Melanogenesis
+KO-5.2.20	KO-a5.a2.c0	04924	Renin secretion
+KO-5.2.21	KO-a5.a2.c1	04614	Renin-angiotensin system
+KO-5.2.22	KO-a5.a2.c2	04925	Aldosterone synthesis and secretion
+KO-5.2.23	KO-a5.a2.c3	04927	Cortisol synthesis and secretion
+KO-5.3	KO-a5.a3	09153	Circulatory system
+KO-5.3.1	KO-a5.a3.a1	04260	Cardiac muscle contraction
+KO-5.3.2	KO-a5.a3.a2	04261	Adrenergic signaling in cardiomyocytes
+KO-5.3.3	KO-a5.a3.a3	04270	Vascular smooth muscle contraction
+KO-5.4	KO-a5.a4	09154	Digestive system
+KO-5.4.1	KO-a5.a4.a1	04970	Salivary secretion
+KO-5.4.2	KO-a5.a4.a2	04971	Gastric acid secretion
+KO-5.4.3	KO-a5.a4.a3	04972	Pancreatic secretion
+KO-5.4.4	KO-a5.a4.a4	04976	Bile secretion
+KO-5.4.5	KO-a5.a4.a5	04973	Carbohydrate digestion and absorption
+KO-5.4.6	KO-a5.a4.a6	04974	Protein digestion and absorption
+KO-5.4.7	KO-a5.a4.a7	04975	Fat digestion and absorption
+KO-5.4.8	KO-a5.a4.a8	04979	Cholesterol metabolism
+KO-5.4.9	KO-a5.a4.a9	04977	Vitamin digestion and absorption
+KO-5.4.10	KO-a5.a4.b0	04978	Mineral absorption
+KO-5.5	KO-a5.a5	09155	Excretory system
+KO-5.5.1	KO-a5.a5.a1	04962	Vasopressin-regulated water reabsorption
+KO-5.5.2	KO-a5.a5.a2	04960	Aldosterone-regulated sodium reabsorption
+KO-5.5.3	KO-a5.a5.a3	04961	Endocrine and other factor-regulated calcium reabsorption
+KO-5.5.4	KO-a5.a5.a4	04964	Proximal tubule bicarbonate reclamation
+KO-5.5.5	KO-a5.a5.a5	04966	Collecting duct acid secretion
+KO-5.6	KO-a5.a6	09156	Nervous system
+KO-5.6.1	KO-a5.a6.a1	04724	Glutamatergic synapse
+KO-5.6.2	KO-a5.a6.a2	04727	GABAergic synapse
+KO-5.6.3	KO-a5.a6.a3	04725	Cholinergic synapse
+KO-5.6.4	KO-a5.a6.a4	04728	Dopaminergic synapse
+KO-5.6.5	KO-a5.a6.a5	04726	Serotonergic synapse
+KO-5.6.6	KO-a5.a6.a6	04720	Long-term potentiation
+KO-5.6.7	KO-a5.a6.a7	04730	Long-term depression
+KO-5.6.8	KO-a5.a6.a8	04723	Retrograde endocannabinoid signaling
+KO-5.6.9	KO-a5.a6.a9	04721	Synaptic vesicle cycle
+KO-5.6.10	KO-a5.a6.b0	04722	Neurotrophin signaling pathway
+KO-5.7	KO-a5.a7	09157	Sensory system
+KO-5.7.1	KO-a5.a7.a1	04744	Phototransduction
+KO-5.7.2	KO-a5.a7.a2	04745	Phototransduction - fly
+KO-5.7.3	KO-a5.a7.a3	04740	Olfactory transduction
+KO-5.7.4	KO-a5.a7.a4	04742	Taste transduction
+KO-5.7.5	KO-a5.a7.a5	04750	Inflammatory mediator regulation of TRP channels
+KO-5.8	KO-a5.a8	09158	Development and regeneration
+KO-5.8.1	KO-a5.a8.a1	04320	Dorso-ventral axis formation
+KO-5.8.2	KO-a5.a8.a2	04360	Axon guidance
+KO-5.8.3	KO-a5.a8.a3	04361	Axon regeneration
+KO-5.8.4	KO-a5.a8.a4	04380	Osteoclast differentiation
+KO-5.9	KO-a5.a9	09149	Aging
+KO-5.9.1	KO-a5.a9.a1	04211	Longevity regulating pathway
+KO-5.9.2	KO-a5.a9.a2	04212	Longevity regulating pathway - worm
+KO-5.9.3	KO-a5.a9.a3	04213	Longevity regulating pathway - multiple species
+KO-5.10	KO-a5.b0	09159	Environmental adaptation
+KO-5.10.1	KO-a5.b0.a1	04710	Circadian rhythm
+KO-5.10.2	KO-a5.b0.a2	04713	Circadian entrainment
+KO-5.10.3	KO-a5.b0.a3	04711	Circadian rhythm - fly
+KO-5.10.4	KO-a5.b0.a4	04712	Circadian rhythm - plant
+KO-5.10.5	KO-a5.b0.a5	04714	Thermogenesis
+KO-5.10.6	KO-a5.b0.a6	04626	Plant-pathogen interaction
+KO-6	KO-a6	09160	Human Diseases
+KO-6.1	KO-a6.a1	09161	Cancer: overview
+KO-6.1.1	KO-a6.a1.a1	05200	Pathways in cancer
+KO-6.1.2	KO-a6.a1.a2	05202	Transcriptional misregulation in cancer
+KO-6.1.3	KO-a6.a1.a3	05206	MicroRNAs in cancer
+KO-6.1.4	KO-a6.a1.a4	05205	Proteoglycans in cancer
+KO-6.1.5	KO-a6.a1.a5	05204	Chemical carcinogenesis - DNA adducts
+KO-6.1.6	KO-a6.a1.a6	05207	Chemical carcinogenesis - receptor activation
+KO-6.1.7	KO-a6.a1.a7	05208	Chemical carcinogenesis - reactive oxygen species
+KO-6.1.8	KO-a6.a1.a8	05203	Viral carcinogenesis
+KO-6.1.9	KO-a6.a1.a9	05230	Central carbon metabolism in cancer
+KO-6.1.10	KO-a6.a1.b0	05231	Choline metabolism in cancer
+KO-6.1.11	KO-a6.a1.b1	05235	PD-L1 expression and PD-1 checkpoint pathway in cancer
+KO-6.2	KO-a6.a2	09162	Cancer: specific types
+KO-6.2.1	KO-a6.a2.a1	05210	Colorectal cancer
+KO-6.2.2	KO-a6.a2.a2	05212	Pancreatic cancer
+KO-6.2.3	KO-a6.a2.a3	05225	Hepatocellular carcinoma
+KO-6.2.4	KO-a6.a2.a4	05226	Gastric cancer
+KO-6.2.5	KO-a6.a2.a5	05214	Glioma
+KO-6.2.6	KO-a6.a2.a6	05216	Thyroid cancer
+KO-6.2.7	KO-a6.a2.a7	05221	Acute myeloid leukemia
+KO-6.2.8	KO-a6.a2.a8	05220	Chronic myeloid leukemia
+KO-6.2.9	KO-a6.a2.a9	05217	Basal cell carcinoma
+KO-6.2.10	KO-a6.a2.b0	05218	Melanoma
+KO-6.2.11	KO-a6.a2.b1	05211	Renal cell carcinoma
+KO-6.2.12	KO-a6.a2.b2	05219	Bladder cancer
+KO-6.2.13	KO-a6.a2.b3	05215	Prostate cancer
+KO-6.2.14	KO-a6.a2.b4	05213	Endometrial cancer
+KO-6.2.15	KO-a6.a2.b5	05224	Breast cancer
+KO-6.2.16	KO-a6.a2.b6	05222	Small cell lung cancer
+KO-6.2.17	KO-a6.a2.b7	05223	Non-small cell lung cancer
+KO-6.3	KO-a6.a3	09172	Infectious disease: viral
+KO-6.3.1	KO-a6.a3.a1	05166	Human T-cell leukemia virus 1 infection
+KO-6.3.2	KO-a6.a3.a2	05170	Human immunodeficiency virus 1 infection
+KO-6.3.3	KO-a6.a3.a3	05161	Hepatitis B
+KO-6.3.4	KO-a6.a3.a4	05160	Hepatitis C
+KO-6.3.5	KO-a6.a3.a5	05171	Coronavirus disease - COVID-19
+KO-6.3.6	KO-a6.a3.a6	05164	Influenza A
+KO-6.3.7	KO-a6.a3.a7	05162	Measles
+KO-6.3.8	KO-a6.a3.a8	05168	Herpes simplex virus 1 infection
+KO-6.3.9	KO-a6.a3.a9	05163	Human cytomegalovirus infection
+KO-6.3.10	KO-a6.a3.b0	05167	Kaposi sarcoma-associated herpesvirus infection
+KO-6.3.11	KO-a6.a3.b1	05169	Epstein-Barr virus infection
+KO-6.3.12	KO-a6.a3.b2	05165	Human papillomavirus infection
+KO-6.4	KO-a6.a4	09171	Infectious disease: bacterial
+KO-6.4.1	KO-a6.a4.a1	05110	Vibrio cholerae infection
+KO-6.4.2	KO-a6.a4.a2	05120	Epithelial cell signaling in Helicobacter pylori infection
+KO-6.4.3	KO-a6.a4.a3	05130	Pathogenic Escherichia coli infection
+KO-6.4.4	KO-a6.a4.a4	05132	Salmonella infection
+KO-6.4.5	KO-a6.a4.a5	05131	Shigellosis
+KO-6.4.6	KO-a6.a4.a6	05135	Yersinia infection
+KO-6.4.7	KO-a6.a4.a7	05133	Pertussis
+KO-6.4.8	KO-a6.a4.a8	05134	Legionellosis
+KO-6.4.9	KO-a6.a4.a9	05150	Staphylococcus aureus infection
+KO-6.4.10	KO-a6.a4.b0	05152	Tuberculosis
+KO-6.4.11	KO-a6.a4.b1	05100	Bacterial invasion of epithelial cells
+KO-6.5	KO-a6.a5	09174	Infectious disease: parasitic
+KO-6.5.1	KO-a6.a5.a1	05146	Amoebiasis
+KO-6.5.2	KO-a6.a5.a2	05144	Malaria
+KO-6.5.3	KO-a6.a5.a3	05145	Toxoplasmosis
+KO-6.5.4	KO-a6.a5.a4	05140	Leishmaniasis
+KO-6.5.5	KO-a6.a5.a5	05142	Chagas disease
+KO-6.5.6	KO-a6.a5.a6	05143	African trypanosomiasis
+KO-6.6	KO-a6.a6	09163	Immune disease
+KO-6.6.1	KO-a6.a6.a1	05310	Asthma
+KO-6.6.2	KO-a6.a6.a2	05322	Systemic lupus erythematosus
+KO-6.6.3	KO-a6.a6.a3	05323	Rheumatoid arthritis
+KO-6.6.4	KO-a6.a6.a4	05320	Autoimmune thyroid disease
+KO-6.6.5	KO-a6.a6.a5	05321	Inflammatory bowel disease
+KO-6.6.6	KO-a6.a6.a6	05330	Allograft rejection
+KO-6.6.7	KO-a6.a6.a7	05332	Graft-versus-host disease
+KO-6.6.8	KO-a6.a6.a8	05340	Primary immunodeficiency
+KO-6.7	KO-a6.a7	09164	Neurodegenerative disease
+KO-6.7.1	KO-a6.a7.a1	05010	Alzheimer disease
+KO-6.7.2	KO-a6.a7.a2	05012	Parkinson disease
+KO-6.7.3	KO-a6.a7.a3	05014	Amyotrophic lateral sclerosis
+KO-6.7.4	KO-a6.a7.a4	05016	Huntington disease
+KO-6.7.5	KO-a6.a7.a5	05017	Spinocerebellar ataxia
+KO-6.7.6	KO-a6.a7.a6	05020	Prion disease
+KO-6.7.7	KO-a6.a7.a7	05022	Pathways of neurodegeneration - multiple diseases
+KO-6.8	KO-a6.a8	09165	Substance dependence
+KO-6.8.1	KO-a6.a8.a1	05030	Cocaine addiction
+KO-6.8.2	KO-a6.a8.a2	05031	Amphetamine addiction
+KO-6.8.3	KO-a6.a8.a3	05032	Morphine addiction
+KO-6.8.4	KO-a6.a8.a4	05033	Nicotine addiction
+KO-6.8.5	KO-a6.a8.a5	05034	Alcoholism
+KO-6.9	KO-a6.a9	09166	Cardiovascular disease
+KO-6.9.1	KO-a6.a9.a1	05417	Lipid and atherosclerosis
+KO-6.9.2	KO-a6.a9.a2	05418	Fluid shear stress and atherosclerosis
+KO-6.9.3	KO-a6.a9.a3	05410	Hypertrophic cardiomyopathy
+KO-6.9.4	KO-a6.a9.a4	05412	Arrhythmogenic right ventricular cardiomyopathy
+KO-6.9.5	KO-a6.a9.a5	05414	Dilated cardiomyopathy
+KO-6.9.6	KO-a6.a9.a6	05415	Diabetic cardiomyopathy
+KO-6.9.7	KO-a6.a9.a7	05416	Viral myocarditis
+KO-6.10	KO-a6.b0	09167	Endocrine and metabolic disease
+KO-6.10.1	KO-a6.b0.a1	04930	Type II diabetes mellitus
+KO-6.10.2	KO-a6.b0.a2	04940	Type I diabetes mellitus
+KO-6.10.3	KO-a6.b0.a3	04950	Maturity onset diabetes of the young
+KO-6.10.4	KO-a6.b0.a4	04932	Non-alcoholic fatty liver disease
+KO-6.10.5	KO-a6.b0.a5	04931	Insulin resistance
+KO-6.10.6	KO-a6.b0.a6	04933	AGE-RAGE signaling pathway in diabetic complications
+KO-6.10.7	KO-a6.b0.a7	04934	Cushing syndrome
+KO-6.11	KO-a6.b1	09175	Drug resistance: antimicrobial
+KO-6.11.1	KO-a6.b1.a1	01501	beta-Lactam resistance
+KO-6.11.2	KO-a6.b1.a2	01502	Vancomycin resistance
+KO-6.11.3	KO-a6.b1.a3	01503	Cationic antimicrobial peptide (CAMP) resistance
+KO-6.12	KO-a6.b2	09176	Drug resistance: antineoplastic
+KO-6.12.1	KO-a6.b2.a1	01521	EGFR tyrosine kinase inhibitor resistance
+KO-6.12.2	KO-a6.b2.a2	01524	Platinum drug resistance
+KO-6.12.3	KO-a6.b2.a3	01523	Antifolate resistance
+KO-6.12.4	KO-a6.b2.a4	01522	Endocrine resistance
+KO-7	KO-a7	09180	Brite Hierarchies
+KO-7.1	KO-a7.a1	09181	Protein families: metabolism
+KO-7.1.2	KO-a7.a1.a2	01001	Protein kinases
+KO-7.1.3	KO-a7.a1.a3	01009	Protein phosphatases and associated proteins
+KO-7.1.4	KO-a7.a1.a4	01002	Peptidases and inhibitors
+KO-7.1.5	KO-a7.a1.a5	01003	Glycosyltransferases
+KO-7.1.6	KO-a7.a1.a6	01005	Lipopolysaccharide biosynthesis proteins
+KO-7.1.7	KO-a7.a1.a7	01011	Peptidoglycan biosynthesis and degradation proteins
+KO-7.1.8	KO-a7.a1.a8	01004	Lipid biosynthesis proteins
+KO-7.1.9	KO-a7.a1.a9	01008	Polyketide biosynthesis proteins
+KO-7.1.10	KO-a7.a1.b0	01006	Prenyltransferases
+KO-7.1.11	KO-a7.a1.b1	01007	Amino acid related enzymes
+KO-7.1.12	KO-a7.a1.b2	00199	Cytochrome P450
+KO-7.1.13	KO-a7.a1.b3	00194	Photosynthesis proteins
+KO-7.2	KO-a7.a2	09182	Protein families: genetic information processing
+KO-7.2.1	KO-a7.a2.a1	03000	Transcription factors
+KO-7.2.2	KO-a7.a2.a2	03021	Transcription machinery
+KO-7.2.3	KO-a7.a2.a3	03019	Messenger RNA biogenesis
+KO-7.2.4	KO-a7.a2.a4	03041	Spliceosome
+KO-7.2.5	KO-a7.a2.a5	03011	Ribosome
+KO-7.2.6	KO-a7.a2.a6	03009	Ribosome biogenesis
+KO-7.2.7	KO-a7.a2.a7	03016	Transfer RNA biogenesis
+KO-7.2.8	KO-a7.a2.a8	03012	Translation factors
+KO-7.2.9	KO-a7.a2.a9	03110	Chaperones and folding catalysts
+KO-7.2.10	KO-a7.a2.b0	04131	Membrane trafficking
+KO-7.2.11	KO-a7.a2.b1	04121	Ubiquitin system
+KO-7.2.12	KO-a7.a2.b2	03051	Proteasome
+KO-7.2.13	KO-a7.a2.b3	03032	DNA replication proteins
+KO-7.2.14	KO-a7.a2.b4	03036	Chromosome and associated proteins
+KO-7.2.15	KO-a7.a2.b5	03400	DNA repair and recombination proteins
+KO-7.2.16	KO-a7.a2.b6	03029	Mitochondrial biogenesis
+KO-7.3	KO-a7.a3	09183	Protein families: signaling and cellular processes
+KO-7.3.1	KO-a7.a3.a1	02000	Transporters
+KO-7.3.2	KO-a7.a3.a2	02044	Secretion system
+KO-7.3.3	KO-a7.a3.a3	02042	Bacterial toxins
+KO-7.3.4	KO-a7.a3.a4	02022	Two-component system
+KO-7.3.5	KO-a7.a3.a5	02035	Bacterial motility proteins
+KO-7.3.6	KO-a7.a3.a6	04812	Cytoskeleton proteins
+KO-7.3.7	KO-a7.a3.a7	04147	Exosome
+KO-7.3.8	KO-a7.a3.a8	02048	Prokaryotic defense system
+KO-7.3.9	KO-a7.a3.a9	04030	G protein-coupled receptors
+KO-7.3.10	KO-a7.a3.b0	04050	Cytokine receptors
+KO-7.3.11	KO-a7.a3.b1	04054	Pattern recognition receptors
+KO-7.3.12	KO-a7.a3.b2	03310	Nuclear receptors
+KO-7.3.13	KO-a7.a3.b3	04040	Ion channels
+KO-7.3.14	KO-a7.a3.b4	04031	GTP-binding proteins
+KO-7.3.15	KO-a7.a3.b5	04052	Cytokines and growth factors
+KO-7.3.16	KO-a7.a3.b6	04515	Cell adhesion molecules
+KO-7.3.17	KO-a7.a3.b7	04090	CD molecules
+KO-7.3.18	KO-a7.a3.b8	01504	Antimicrobial resistance genes
+KO-7.3.19	KO-a7.a3.b9	00535	Proteoglycans
+KO-7.3.20	KO-a7.a3.c0	00536	Glycosaminoglycan binding proteins
+KO-7.3.21	KO-a7.a3.c1	00537	Glycosylphosphatidylinositol (GPI)-anchored proteins
+KO-7.3.22	KO-a7.a3.c2	04091	Lectins
+KO-7.3.23	KO-a7.a3.c3	04990	Domain-containing proteins not elsewhere classified
+KO-7.4	KO-a7.a4	09185	Viral protein families
+KO-7.4.1	KO-a7.a4.a1	03200	Viral proteins
+KO-7.4.2	KO-a7.a4.a2	03210	Viral fusion proteins
+KO-7.5	KO-a7.a5	09184	RNA family
+KO-7.5.1	KO-a7.a5.a1	03100	Non-coding RNAs
+KO-8	KO-a8	09190	Not Included in Pathway or Brite
+KO-8.1	KO-a8.a1	09191	Unclassified: metabolism
+KO-8.1.1	KO-a8.a1.a1	99980	Enzymes with EC numbers
+KO-8.1.2	KO-a8.a1.a2	99981	Carbohydrate metabolism
+KO-8.1.3	KO-a8.a1.a3	99982	Energy metabolism
+KO-8.1.4	KO-a8.a1.a4	99983	Lipid metabolism
+KO-8.1.5	KO-a8.a1.a5	99984	Nucleotide metabolism
+KO-8.1.6	KO-a8.a1.a6	99985	Amino acid metabolism
+KO-8.1.7	KO-a8.a1.a7	99986	Glycan metabolism
+KO-8.1.8	KO-a8.a1.a8	99987	Cofactor metabolism
+KO-8.1.9	KO-a8.a1.a9	99988	Secondary metabolism
+KO-8.1.10	KO-a8.a1.b0	99999	Others
+KO-8.2	KO-a8.a2	09192	Unclassified: genetic information processing
+KO-8.2.1	KO-a8.a2.a1	99973	Transcription
+KO-8.2.2	KO-a8.a2.a2	99974	Translation
+KO-8.2.3	KO-a8.a2.a3	99975	Protein processing
+KO-8.2.4	KO-a8.a2.a4	99976	Replication and repair
+KO-8.2.5	KO-a8.a2.a5	99998	Others
+KO-8.3	KO-a8.a3	09193	Unclassified: signaling and cellular processes
+KO-8.3.1	KO-a8.a3.a1	99977	Transport
+KO-8.3.2	KO-a8.a3.a2	99978	Cell growth
+KO-8.3.3	KO-a8.a3.a3	99993	Cell motility
+KO-8.3.4	KO-a8.a3.a4	99995	Signaling proteins
+KO-8.3.5	KO-a8.a3.a5	99992	Structural proteins
+KO-8.3.6	KO-a8.a3.a6	99994	Others
+KO-8.3.7	KO-a8.a3.a7	99979	Unclassified viral proteins
+KO-8.4	KO-a8.a4	09194	Poorly characterized
+KO-8.4.1	KO-a8.a4.a1	99996	General function prediction only
+KO-8.4.2	KO-a8.a4.a2	99997	Function unknown
