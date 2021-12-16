@@ -15,7 +15,7 @@ import webbrowser
 import dash_cytoscape as cyto
 cyto.load_extra_layouts()
 
-functional_annotation_db = "KEGG Orthology" # "Multifun"
+functional_annotation_db = "Multifun" # "Kegg Orthology"
 srna_types = ("sRNA", "ncRNA")
 fun_colors = ["DarkOliveGreen", "DarkRed", "DarkSlateBlue", "LightCoral", "Khaki", "Blue", "Chartreuse", "Cyan", "BlueViolet", "DarkMagenta"]
 
@@ -258,7 +258,8 @@ elif functional_annotation_db == "Multifun":
 
 multifun_trans = {row[identifier].replace(".", "-"):row[description] for i, row in pd.read_csv(os.path.join(dir_path, "assets", fname_categories), sep='\t').iterrows()}
 multifun_data = {row[gene_name]:"_".join([mf.replace(".", "-") for mf in row[gene_categories].split(":")]) for i, row in pd.read_csv(os.path.join(dir_path, "assets", fname_genes), sep='\t').iterrows() if row[gene_categories].startswith(category_prefix)}
-multifun_items = [{"value":key, "label":val} for key, val in multifun_trans.items()]
+multifun_set = np.unique(np.hstack([[mf.replace(".", "-") for mf in row[gene_categories].split(":")] for i, row in pd.read_csv(os.path.join(dir_path, "assets", fname_genes), sep='\t').iterrows() if row[gene_categories].startswith(category_prefix)]))
+multifun_items = [{"value":key, "label":val} for key, val in multifun_trans.items() if key in multifun_set]
 
 app.layout = html.Div(
     id="root",
@@ -290,7 +291,7 @@ app.layout = html.Div(
                                                     value=dataset_paths[0],
                                                     clearable=False,
                                                     options=[
-                                                        {'label': name.split('/')[-1], 'value': name}
+                                                        {'label': name.split('/')[-1][:-4], 'value': name}
                                                         for name in dataset_paths
                                                     ]
                                                 ),
@@ -446,23 +447,11 @@ app.layout = html.Div(
                                                         },
                                                     layout=[
                                                         {
-                                                          "id": "NC_002505",
+                                                          "id": "NC_000913.3",
                                                           "label": "",
                                                           "color": "#999999",
-                                                          "len": 2961149
-                                                        },
-                                                        {
-                                                          "id": "NC_002506",
-                                                          "label": "",
-                                                          "color": "#CCCCCC",
-                                                          "len": 1072315
+                                                          "len": 4641652
                                                         }
-                                                    #    {
-                                                    #      "id": "NC_000913.3",
-                                                    #      "label": "",
-                                                    #      "color": "#999999",
-                                                    #      "len": 4641652
-                                                    #    }
                                                     ],
                                                     selectEvent={"0": "hover", "1": "click", "2": "both"},
                                                     tracks=[{
@@ -705,4 +694,4 @@ def open_browser():
 
 if __name__ == '__main__':
     #open_browser();
-    app.run_server(debug=True,port=8081,host='0.0.0.0');
+    app.run_server(debug=False,port=8083,host='0.0.0.0');

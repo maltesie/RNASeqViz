@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -d ./dashenv ]
+then
+  source ./dashenv/bin/activate
+else
+  python3 -m venv dashenv
+  source ./dashenv/bin/activate
+  pip install --no-cache-dir --upgrade pip
+  pip install --no-cache-dir Dash
+  pip install --no-cache-dir dash-cytoscape
+  pip install --no-cache-dir dash-bio
+  pip install --no-cache-dir networkx
+  pip install --no-cache-dir matplotlib
+fi
+
+python app.py

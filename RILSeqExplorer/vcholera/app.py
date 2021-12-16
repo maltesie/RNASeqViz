@@ -1,6 +1,6 @@
 from dash import Dash, html, dcc, dash_table, no_update
 import dash_bio as dashbio
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import matplotlib.pyplot as plt
 import matplotlib
 
@@ -15,6 +15,7 @@ import webbrowser
 import dash_cytoscape as cyto
 cyto.load_extra_layouts()
 
+functional_annotation_db = "KEGG Orthology" # "Multifun"
 srna_types = ("sRNA", "ncRNA")
 fun_colors = ["DarkOliveGreen", "DarkRed", "DarkSlateBlue", "LightCoral", "Khaki", "Blue", "Chartreuse", "Cyan", "BlueViolet", "DarkMagenta"]
 
@@ -27,6 +28,44 @@ app = Dash(
 server = app.server
 
 # Define Helper Functions
+
+def filter_df(df, search_strings, max_interactions, slider_value, functions, checklist):
+    filtered_df = df.copy()
+    if search_strings is not None and len(search_strings) > 0: filtered_df = filter_search(filtered_df, search_strings)
+    filtered_df = filter_threshold(filtered_df, slider_value)[:max_interactions]
+    
+    functions_return = no_update
+    top10 = functions is not None and "top_10" in functions
+    top10g = functions is not None and "top_10_grouped" in functions
+
+    if checklist is None: checklist = []
+    
+    all_names = np.unique(np.hstack((filtered_df["name1"][filtered_df["type1"]=="CDS"], filtered_df["name2"][filtered_df["type2"]=="CDS"])))
+    if top10 or top10g:
+        count = {c:0 for c in multifun_trans}
+        functions_return = ["top_10"]
+        if top10g:
+            functions_return = ["top_10_grouped"]
+            for fun in multifun_trans:
+                for name in all_names:
+                    if name in multifun_data and any((fun==f) or (fun+'-' in f) for f in multifun_data[name].split("_")): count[fun] += 1
+        else:
+            for name in all_names: 
+                if name in multifun_data: 
+                    for mf in multifun_data[name].split("_"): count[mf] += 1
+        
+        functions = sorted({k:v for k,v in count.items() if v>0}, key=count.get, reverse=True)
+        if top10g: functions = [f for i,f in enumerate(functions) if not any(((count[ff] > count[f]) and (ff+'-' in f)) or ((count[ff] == count[f]) and (f+'-' in ff)) for ff in functions)]
+        functions = functions[:10]
+    
+    selected_fun_genes = []
+    fun2color = dict()
+    if functions is not None: 
+        fun2color = {f:c for f,c in zip(functions, fun_colors)}
+        selected_fun_genes = [n for n in all_names if ((n in multifun_data) and any(any(ff == f or f+'-' in ff for ff in multifun_data[n].split("_")) for f in functions))] 
+        if ("restrict_fun" in checklist): filtered_df = filter_search(filtered_df, selected_fun_genes)
+        
+    return filtered_df, functions, fun2color, functions_return, selected_fun_genes
 
 def filter_threshold(df, threshold):
     return df[np.log(df['nb_ints']) > threshold]
@@ -45,7 +84,7 @@ def filter_cc(df, node):
 def filter_search(df, search_strings):
     index = np.zeros(len(df), dtype=bool)
     for search_string in search_strings:
-        index |= df['name1'].str.contains(search_string) | df['name2'].str.contains(search_string)
+        index |= df['name1'].str.match(search_string) | df['name2'].str.match(search_string)
     return df[index]
 
 def table_data(df):
@@ -79,17 +118,17 @@ def shorten(s):
         s=s[:14] + '...'
     return s
 
-def break_lines(s):
+def break_lines(s, nchars=15):
     a = s.split(" ")
     return_s = ""
     c = 0
     for w in a:
         c += len(w)
-        if c > 15:
+        if c > nchars:
             c = len(w)
             return_s += "\n"
         return_s += w
-        if c <= 15:
+        if c <= nchars:
             c += 1
             return_s += " "
     return return_s
@@ -182,27 +221,45 @@ def circos_data(df):
 
 # Load Data
 dataset_paths = []
+initial_dfs = []
 dir_path = os.path.dirname(os.path.realpath(__file__))
+csv_index = 0
+csv_trans = {}
+fragments_sums = []
 for file in os.listdir(os.path.join(dir_path, "assets")):
     if file.endswith(".csv"):
-        dataset_paths.append(os.path.abspath(os.path.join(dir_path, "assets", file)))
+        csv_path = os.path.abspath(os.path.join(dir_path, "assets", file))
+        dataset_paths.append(csv_path)
+        initial_dfs.append(pd.read_csv(csv_path))
+        fragments_sums.append(initial_dfs[-1]['nb_ints'].sum())
+        csv_trans[csv_path] = csv_index
+        csv_index += 1
+        
         
 with open(os.path.join(dir_path, "assets", 'mystylesheet.json')) as json_file:
     stylesheet = json.load(json_file)
-    
-initial_df = pd.read_csv(dataset_paths[0])
-filtered_df = pd.read_csv(dataset_paths[0])
-selected_node = None
-min_edge, max_edge = np.log(initial_df['nb_ints'].min()), np.log(initial_df['nb_ints'].max())
-fragments_sum = initial_df['nb_ints'].sum()
 
-genes = [{"label":v, "value":v} for v in np.sort(np.unique(np.vstack((initial_df["name1"],initial_df["name2"]))))]
+if functional_annotation_db == "KEGG Orthology":
+    gene_name = "locus_tag"
+    identifier = "hierarchy"
+    description = "description"
+    gene_categories = "ko_category"
+    fname_genes = "ko_genes.txt"
+    fname_categories = "ko_categories.txt"
+    category_prefix = "KO-"
+elif functional_annotation_db == "Multifun":
+    gene_name = "name"
+    identifier = "multi_fun"
+    description = "common_name"
+    gene_categories = "multi_fun"
+    fname_genes = "multifun_genes.txt"
+    fname_categories = "multifun_categories.txt"
+    category_prefix = "BC-"
 
-multifun_trans = {row["multi_fun"].replace(".", "-"):row["common_name"] for i, row in pd.read_csv(os.path.join(dir_path, "assets", "multifun_categories.txt"), sep='\t').iterrows()}
-multifun_data = {row["name"]:"_".join([mf.replace(".", "-") for mf in row["multi_fun"].split(":")]) for i, row in pd.read_csv(os.path.join(dir_path, "assets", "multifun_genes.txt"), sep='\t').iterrows() if row["multi_fun"].startswith("BC-")}
-multifun_items = [{"value":key, "label":"{}: {}".format(key, val)} for key, val in multifun_trans.items()]
-
-elements = cytoscape_data(initial_df[:10], fragments_sum, None)
+multifun_trans = {row[identifier].replace(".", "-"):row[description] for i, row in pd.read_csv(os.path.join(dir_path, "assets", fname_categories), sep='\t').iterrows()}
+multifun_data = {row[gene_name]:"_".join([mf.replace(".", "-") for mf in row[gene_categories].split(":")]) for i, row in pd.read_csv(os.path.join(dir_path, "assets", fname_genes), sep='\t').iterrows() if row[gene_categories].startswith(category_prefix)}
+multifun_set = np.unique(np.hstack([[mf.replace(".", "-") for mf in row[gene_categories].split(":")] for i, row in pd.read_csv(os.path.join(dir_path, "assets", fname_genes), sep='\t').iterrows() if row[gene_categories].startswith(category_prefix)]))
+multifun_items = [{"value":key, "label":val} for key, val in multifun_trans.items() if key in multifun_set]
 
 app.layout = html.Div(
     id="root",
@@ -263,7 +320,7 @@ app.layout = html.Div(
                                         html.P("Search:"),
                                         dcc.Dropdown(
                                             id="gene-multi-select",
-                                            options=genes,
+                                            options=[],
                                             multi=True
                                         )
                                     ]
@@ -273,29 +330,25 @@ app.layout = html.Div(
                                     children=[
                                         html.Div(
                                             className="horizontal",
-                                            style={"padding-bottom":"15px"},
                                             children=[
-                                                html.P("Maximum number of interactions:", style={"padding-right":"10px"}),
-                                                dcc.Input(id="max-interactions", type="number", value=300, style={"max-height":"18px", "min-width":"80px"})
-                                            ]
-                                        ),
-                                        html.Div(
-                                            children=[
-                                                #html.P("min reads:", className="line-label"),
+                                                html.P("Minimum # of reads:"),
                                                 dcc.Slider(
                                                     id='reads-slider',
-                                                    min=min_edge - 0.01*min_edge,
-                                                    max=max_edge + 0.01*max_edge,
-                                                    step=(max_edge-min_edge)/100,
-                                                    value= min_edge + 0.5*(max_edge-min_edge),
-                                                    marks={
-                                                        min_edge: '{}'.format(int(np.exp(min_edge))),
-                                                        min_edge + 0.5*(max_edge-min_edge): '{}'.format(int(np.exp((min_edge + 0.5*(max_edge-min_edge))))),
-                                                        max_edge: '{}'.format(int(np.exp(max_edge)))
-                                                    }
+                                                    min=0,
+                                                    max=100,
+                                                    step=1,
+                                                    value=50
                                                 ),
                                             ]
                                         ),
+                                        html.Div(
+                                            className="horizontal",
+                                            style={"padding-top":"10px"},
+                                            children=[
+                                                html.P(id="nb-interactions-text", style={"padding-right":"5px", "padding-top":"2px"}),
+                                                dcc.Input(id="max-interactions", type="number", value=300, style={"max-height":"18px", "min-width":"80px"})
+                                            ]
+                                        )
                                     ]
                                 ),
                                 html.Div(
@@ -304,7 +357,7 @@ app.layout = html.Div(
                                         html.P("Color by:"),
                                         dcc.Dropdown(
                                             id='function-multi-select',
-                                            options=[{"label":"top 10 functions in current graph", "value":"top_10"}, {"label":"super-categories", "value":"top_10_grouped"}]+multifun_items,
+                                            options=[{"label":"top 10 functions", "value":"top_10"}, {"label":"top 10 functions (hierarchically grouped)", "value":"top_10_grouped"}]+multifun_items,
                                             multi=True
                                         ),
                                         dcc.Checklist(
@@ -348,7 +401,7 @@ app.layout = html.Div(
                                             children=[
                                                 cyto.Cytoscape(
                                                     id='graph',
-                                                    elements=elements,
+                                                    elements=[],
                                                     stylesheet=stylesheet,
                                                     responsive=True,
                                                     layout={'name':'random'},
@@ -378,8 +431,9 @@ app.layout = html.Div(
                                                     enableDownloadSVG=True,
                                                     id='my-dashbio-circos',
                                                     config = {
-                                                        'gap' : 0.01,
+                                                        'gap' : 0.003,
                                                         'cornerRadius':5,
+                                                        'innerRadius':290,
                                                         'ticks': {
                                                             'display': True, 
                                                             'spacing': 100000,
@@ -393,15 +447,28 @@ app.layout = html.Div(
                                                         },
                                                     layout=[
                                                         {
-                                                          "id": "NC_000913.3",
+                                                          "id": "NC_002505",
                                                           "label": "",
                                                           "color": "#999999",
-                                                          "len": 4641652
-                                                        }],
+                                                          "len": 2961149
+                                                        },
+                                                        {
+                                                          "id": "NC_002506",
+                                                          "label": "",
+                                                          "color": "#CCCCCC",
+                                                          "len": 1072315
+                                                        }
+                                                    #    {
+                                                    #      "id": "NC_000913.3",
+                                                    #      "label": "",
+                                                    #      "color": "#999999",
+                                                    #      "len": 4641652
+                                                    #    }
+                                                    ],
                                                     selectEvent={"0": "hover", "1": "click", "2": "both"},
                                                     tracks=[{
                                                         'type': 'CHORDS',
-                                                        'data': circos_data(initial_df),
+                                                        'data': [],
                                                         'config': {
                                                             'opacity': 0.9,
                                                             'color': {'name': 'color'},
@@ -427,54 +494,20 @@ app.layout = html.Div(
                                             children=[
                                                 dash_table.DataTable(
                                                     id='table',
-                                                    columns=[{"name": i, "id": i} for i in table_data(initial_df).columns],
-                                                    data=table_data(initial_df).to_dict('records')
+                                                    columns=[{"name": i, "id": i} for i in ["name1", "type1", "name2", "type2", "nb_ints", "in_libs"]],
+                                                    style_cell={
+                                                        'height': 'auto',
+                                                        # all three widths are needed
+                                                        'minWidth': '140px', 'width': '140px', 'maxWidth': '140px',
+                                                        'whiteSpace': 'normal'
+                                                    }
+                                                    #data=table_data(empty_df).to_dict('records')
                                                 ),
                                                 html.Div(
                                                     [
                                                         html.Button("DOWNLOAD CSV", id="btn_csv"),
                                                         dcc.Download(id="download-dataframe-csv"),
                                                     ]
-                                                )
-                                            ]
-                                        )
-                                    ]
-                                ),
-                                dcc.Tab(
-                                    id="about-tab",
-                                    className='custom-tab',
-                                    selected_className='custom-tab--selected',
-                                    label='About',
-                                    value='about',
-                                    children=[
-                                        html.Div(
-                                            id="about-container",
-                                            className="container",
-                                            children=[
-                                                html.P("Color gradient explanation"),
-                                                html.Div(
-                                                    className="controls-block horizontal deflate",
-                                                    children=[
-                                                        html.P("5'UTR", className="cb-left"),
-                                                        
-                                                        html.Div(
-                                                            id = "colorbar-edges",
-                                                            className="controls-block",
-                                                        ),
-                                                        html.P("3'UTR", className="cb-right"),
-                                                        html.P("Edges have two types. Edges of type 1 are between a sRNA and anything else. \
-                                                               All other edges are of type 2. Edges of type 2 are colored grey and edges of \
-                                                                   type 1 follow the color gradient on the left. The color is defined by \
-                                                                       the average position of the interaction mapped on the length of the \
-                                                                           gene that interacts with the sRNA.", className="text-block")
-                                                    ]
-                                                ),
-                                              html.Div(
-                                                    className="controls-block horizontal deflate",
-                                                    id = "test-block",
-                                                    children=[
-                                                        html.P("", className="text-block")
-                                                   ]
                                                 )
                                             ]
                                         )
@@ -492,10 +525,16 @@ app.layout = html.Div(
 @app.callback(
     Output("download-dataframe-csv", "data"),
     Input("btn_csv", "n_clicks"),
+    [State('gene-multi-select', 'value'),
+     State('max-interactions', 'value'),
+     State('reads-slider', 'value'),
+     State('function-multi-select', 'value'),
+     State('color-checklist', 'value'),
+     State('dropdown-update-dataset', 'value')],
     prevent_initial_call=True,
 )
-def func(n_clicks):
-    return dcc.send_data_frame(filtered_df.to_csv, "interactions.csv")
+def func(n_clicks, search_strings, max_interactions, slider_value, functions, checklist, dataset):
+    return dcc.send_data_frame(filter_df(initial_dfs[csv_trans[dataset]], search_strings, max_interactions, slider_value, functions, checklist)[0].to_csv, "interactions.csv")
 
 @app.callback(
     [Output("graph", "stylesheet"),
@@ -503,26 +542,32 @@ def func(n_clicks):
     Output('graph', 'elements'),
     Output('my-dashbio-circos', 'tracks'),
     Output('reads-slider', 'marks'),
+    Output('nb-interactions-text', 'children'),
     Output('function-multi-select', 'value'),
-    Output('legend-container', 'children'),
-    Output('test-block', 'children')],
+    Output('legend-container', 'children')],
     [Input('reads-slider', 'value'),
     Input('gene-multi-select', 'value'),
     Input('function-multi-select', 'value'),
     Input('color-checklist', 'value'),
-    Input('max-interactions', 'value')])
-def update_selected_data(slider_value, search_strings, functions, checklist, max_interactions):
-    global filtered_df
+    Input('max-interactions', 'value'),
+    Input('dropdown-update-dataset', 'value')]
+    )
+def update_selected_data(slider_value, search_strings, functions, checklist, max_interactions, dataset):
     
-    filtered_df = initial_df.copy()
-    
-    functions_return = no_update
-    top10 = functions is not None and "top_10" in functions
-    top10g = functions is not None and "top_10_grouped" in functions
-    if search_strings is not None and len(search_strings) > 0: filtered_df = filter_search(filtered_df, search_strings)
-    filtered_df = filter_threshold(filtered_df, slider_value)[:max_interactions]
+    filtered_df, functions, fun2color, functions_return, selected_fun_genes = filter_df(initial_dfs[csv_trans[dataset]], search_strings, max_interactions, slider_value, functions, checklist)
 
-    if checklist is None: checklist = []
+    all_unique_fun_strings = np.unique([multifun_data[n] for n in selected_fun_genes])
+    my_stylesheet = [
+        {"selector":"."+fun_combination, 
+         "style":{
+             "background-fill": "linear-gradient",
+             "background-gradient-stop-colors": " ".join([fun2color[fun] for fun in fun2color if any((fun==f) or (fun+'-' in f) for f in fun_combination.split("_"))]),
+             "background-gradient-direction": "to-right",
+             "background-blacken":"-0.2",
+             "font-weight": "bold"
+             }
+         } 
+        for fun_combination in all_unique_fun_strings]
 
     tracks=[{
         'type': 'CHORDS',
@@ -535,92 +580,49 @@ def update_selected_data(slider_value, search_strings, functions, checklist, max
         }
     }]
     
-    all_names = np.unique(np.hstack((filtered_df["name1"][filtered_df["type1"]=="CDS"], filtered_df["name2"][filtered_df["type2"]=="CDS"])))
-    if top10 or top10g:
-        count = {c:0 for c in multifun_trans}
-        functions_return = ["top_10"]
-        if top10g:
-            functions_return = ["top_10_grouped"]
-            for fun in multifun_trans:
-                for name in all_names:
-                    if name in multifun_data and fun in multifun_data[name]: count[fun] += 1
-        else:
-            for name in all_names: 
-                if name in multifun_data: 
-                    for mf in multifun_data[name].split("_"): count[mf] += 1
-        
-        functions = sorted({k:v for k,v in count.items() if v>0}, key=count.get, reverse=True)
-        if top10g: functions = functions[0:1]+[f for i,f in enumerate(functions[1:]) if not any(ff in f for ff in functions[:i+1])]
-        functions = functions[:10]
-    
-    selected_fun_genes = []
-    fun2color = dict()
-    if functions is not None: 
-        fun2color = {f:c for f,c in zip(functions, fun_colors)}
-        selected_fun_genes = [n for n in all_names if ((n in multifun_data) and any(f in multifun_data[n] for f in functions))] 
-        if ("restrict_fun" in checklist): filtered_df = filter_search(filtered_df, selected_fun_genes)
-
-    all_unique_fun_strings = np.unique([multifun_data[n] for n in selected_fun_genes])
-    my_stylesheet = [
-        {"selector":"."+fun_combination, 
-         "style":{
-             "background-fill": "linear-gradient",
-             "background-gradient-stop-colors": " ".join([fun2color[fun] for fun in fun2color if fun in fun_combination]),
-             "background-gradient-direction": "to-right",
-             "background-blacken":"-0.2",
-             "font-weight": "bold"
-             }
-         } 
-        for fun_combination in all_unique_fun_strings]
-
-    
     if functions is not None: legend = [html.Div(className="horizontal", children=[html.Div(className="color-legend-item", 
                                                                                             style={"background-color":c}), 
                                                                                    html.P(break_lines(multifun_trans[f]), className="color-legend-text")]) for c, f in zip(fun_colors, functions)]
     else: legend = []
     
     return stylesheet+my_stylesheet, table_data(filtered_df).to_dict('records'), \
-            cytoscape_data(filtered_df, fragments_sum, functions), \
-            tracks, {slider_value: '{} ({})'.format(int(np.exp(slider_value)), len(filtered_df))}, \
-            functions_return, legend, [html.P(str(search_strings) + str(search_strings is not None))]
+            cytoscape_data(filtered_df, fragments_sums[csv_trans[dataset]], functions), \
+            tracks, {slider_value: '{}'.format(int(np.exp(slider_value)))}, ["Current # of interactions: {} / ".format(len(filtered_df))], \
+            functions_return, legend
 
 @app.callback(
     Output('info-output', 'children'),
     [Input('graph', 'selectedNodeData'),
-     Input('graph', 'selectedEdgeData')]
+     Input('graph', 'selectedEdgeData')],
+    [State('gene-multi-select', 'value'),
+     State('max-interactions', 'value'),
+     State('reads-slider', 'value'),
+     State('function-multi-select', 'value'),
+     State('color-checklist', 'value'),
+     State('dropdown-update-dataset', 'value')]
     )
-def set_selected_element(node_data, edge_data):
+def set_selected_element(node_data, edge_data, search_strings, max_interactions, slider_value, functions, checklist, dataset):
     global selected_node
     if (node_data is None) or (node_data == []):
         selected_node = None
         text_return = ["Select a node or edge in the graph."]
         if (edge_data is None) or (edge_data == []):
-            text_return = ["Select an interaction to display further information."]
+            text_return = ["Select an interaction (edge) or target (node) to display details. The size of the nodes corresponds to their share of interactions in the current graph. The color of the edges indicates the average binding position from red for 5'UTR to blue for 3'UTR."]
         else:  
             edge_data = edge_data[0]
             text_return = ["{} -> {}".format(edge_data['source'].split("#")[0], edge_data['target'].split("#")[0]), html.Br(), 
-                           "# of reads: {}".format(int(fragments_sum*float(edge_data['fragments'])))]
+                           "# of reads: {}".format(int(fragments_sums[csv_trans[dataset]]*float(edge_data['fragments'])))]
             if edge_data['typ'] == 'srna_edge':
+                text_return += [html.Br(), html.Br(), "Average chimera position in target:", html.Br()]
                 text_return.append(html.Div(className="horizontal deflate", children=[html.P("5'UTR", className="cb-left"),
                                                                                         html.Div(
                                                                                             id = "colorbar-edges",
                                                                                             className="controls-block",
                                                                                             children=[
                                                                                                 html.P("CDS", className="cb-middle"),
+                                                                                                
                                                                                                 html.Div(
                                                                                                     className='colorbar-arrow',
-                                                                                                    style={
-                                                                                                        'left': '{}%'.format(cb_edge_percentage(edge_data['mi'])),
-                                                                                                    }
-                                                                                                ),
-                                                                                                html.Div(
-                                                                                                    className='colorbar-arrow',
-                                                                                                    style={
-                                                                                                        'left': '{}%'.format(cb_edge_percentage(edge_data['ma'])),
-                                                                                                    }
-                                                                                                ),
-                                                                                                html.Div(
-                                                                                                    className='colorbar-arrow mean',
                                                                                                     style={
                                                                                                         'left': '{}%'.format(cb_edge_percentage(edge_data['pos']))
                                                                                                     }
@@ -632,14 +634,14 @@ def set_selected_element(node_data, edge_data):
     else: 
         node_data = node_data[0]
         selected_node = node_data["id"]
-        selected_node_interactions = filter_targets(filtered_df, selected_node)
+        selected_node_interactions = filter_targets(filter_df(initial_dfs[csv_trans[dataset]], search_strings, max_interactions, slider_value, functions, checklist)[0], selected_node)
         nb_targets = len(set(list(selected_node_interactions['name1'])+list(selected_node_interactions['name2']))) - 1
         if selected_node in multifun_data: node_funs = multifun_data[selected_node].split("_")
         else: node_funs= []
         text_return = ["{} is involved in {} interactions with {} partners.".format(selected_node, len(selected_node_interactions), nb_targets)]
-        if len(node_funs) > 0: text_return += [html.Br(), html.Br(), "Multifun classes:"]
+        if len(node_funs) > 0: text_return += [html.Br(), html.Br(), "{} classes:".format(functional_annotation_db)]
         for nf in node_funs:
-            text_return += [html.Br(), nf+" - "+multifun_trans[nf]]
+            text_return += [html.Br(), multifun_trans[nf]]
         
     return text_return
 
@@ -691,16 +693,13 @@ def get_image(clicks):
     [Output('reads-slider', 'min'),
      Output('reads-slider', 'max'),
      Output('reads-slider', 'step'),
-     Output('reads-slider', 'value')],
+     Output('reads-slider', 'value'),
+     Output('gene-multi-select', 'options')],
     Input('dropdown-update-dataset', 'value'))
 def update_dataset(dataset_path):
-    global initial_df, selected_node, fragments_sum, genes
-    initial_df = pd.read_csv(dataset_path)
-    genes = [{"label":v, "value":v} for v in np.sort(np.unique(np.vstack((initial_df["name1"],initial_df["name2"]))))]
-    selected_node = None
-    min_edge, max_edge = np.log(initial_df['nb_ints'].min()), np.log(initial_df['nb_ints'].max())
-    fragments_sum = initial_df['nb_ints'].sum()
-    return min_edge - 0.01*min_edge, max_edge + 0.01*max_edge, max_edge/100, min_edge + 0.5*(max_edge-min_edge)
+    genes = [{'label':v, 'value':v} for v in np.sort(np.unique(np.vstack((initial_dfs[csv_trans[dataset_path]]["name1"],initial_dfs[csv_trans[dataset_path]]["name2"]))))]
+    min_edge, max_edge = np.log(initial_dfs[csv_trans[dataset_path]]['nb_ints'].min()), np.log(initial_dfs[csv_trans[dataset_path]]['nb_ints'].max())
+    return min_edge - 0.01*min_edge, max_edge + 0.01*max_edge, max_edge/100, min_edge + 0.5*(max_edge-min_edge), genes
 
 def open_browser():
     webbrowser.open_new_tab("http://localhost:8080")
