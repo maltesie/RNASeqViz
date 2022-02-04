@@ -117,7 +117,7 @@ def multialigned(seqname, alignments):
 # Load Data
 dataset_paths = []
 dir_path = os.path.dirname(os.path.realpath(__file__))
-df = pd.read_csv("/home/abc/Workspace/ConservedUTRs/vibrio_first_round/alignments/three_alignment_table (copy).csv")
+df = pd.read_csv(os.path.join(dir_path, "assets", "three_alignment_table.csv"))
 df["average_score"] = df[[name for name in df.columns if name.endswith("score")]].mean(axis=1)
 df = df.sort_values(by=["average_score"], ascending=False).round(decimals=3)
 current_df = df.copy()
@@ -305,7 +305,7 @@ app.layout = html.Div(
                Output('my-alignment-viewer', 'showconsensus')],
               [Input('table', "active_cell"),
                Input('species-checklist', "value")],
-              state=[State('table', "page_current"),
+              [State('table', "page_current"),
                      State('table', "data")])
 def get_active_alignment(active_cell, checked_species, current_page, data):
     if active_cell:
