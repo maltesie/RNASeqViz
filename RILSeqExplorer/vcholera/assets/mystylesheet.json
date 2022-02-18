@@ -11,7 +11,7 @@
     "width": "mapData(current_fragments, 0, 0.7, 50, 170)",
     "height": "mapData(current_fragments, 0, 0.7, 50, 170)",
     "content": "data(name)",
-    "font-size": "mapData(current_fragments, 0, 0.7, 10px, 40px)",
+    "font-size": "mapData(current_fragments, 0, 0.7, 15px, 35px)",
     "text-valign": "center",
     "text-halign": "center",
     "background-color": "#555",

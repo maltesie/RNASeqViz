@@ -160,7 +160,7 @@ def cytoscape_data(df, norm, selected_functions):
             edge_type = "srna_edge"
             if "IGR" in (type_target, type_source):
                 edge_type = "other_edge"
-            elif type_target in ("sRNA", "ncRNA"):
+            elif type_target in srna_types:
                 pos, mi, ma = pos1, min1, max1
             else:
                 pos, mi, ma = pos2, min2, max2     
@@ -449,13 +449,13 @@ app.layout = html.Div(
                                                         {
                                                           "id": "NC_002505",
                                                           "label": "",
-                                                          "color": "#999999",
+                                                          "color": "#009933",
                                                           "len": 2961149
                                                         },
                                                         {
                                                           "id": "NC_002506",
                                                           "label": "",
-                                                          "color": "#CCCCCC",
+                                                          "color": "#99cc33",
                                                           "len": 1072315
                                                         }
                                                     #    {
