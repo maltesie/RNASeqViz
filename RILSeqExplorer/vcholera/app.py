@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, dash_table, no_update
+from dash import Dash, html, dcc, dash_table, no_update, callback_context
 import dash_bio as dashbio
 from dash.dependencies import Input, Output, State
 import matplotlib.pyplot as plt
@@ -29,34 +29,48 @@ server = app.server
 
 # Define Helper Functions
 
+def hierarchical_sort(sorted_items):
+    hier_sorted = []
+    while sorted_items:
+        s1 = sorted_items.pop(0)
+        hier_sorted.append(s1)
+        while True:
+            s2 = s1
+            l = len(sorted_items)
+            for i, other_s in enumerate(sorted_items):
+                if other_s.startswith(s2):
+                    if s2 == s1:
+                        s2 = other_s
+                    hier_sorted.append(other_s)
+                    sorted_items.remove(other_s)
+            if len(sorted_items) == l: break
+    return hier_sorted
+
+len_trans = {5:"", 8:"- ", 11:"- - "}
+
 def filter_df(df, search_strings, max_interactions, slider_value, functions, checklist):
     filtered_df = df.copy()
     if search_strings is not None and len(search_strings) > 0: filtered_df = filter_search(filtered_df, search_strings)
     filtered_df = filter_threshold(filtered_df, slider_value)[:max_interactions]
-    
-    functions_return = no_update
-    top10 = functions is not None and "top_10" in functions
-    top10g = functions is not None and "top_10_grouped" in functions
 
     if checklist is None: checklist = []
     
-    all_names = np.unique(np.hstack((filtered_df["name1"][filtered_df["type1"]=="CDS"], filtered_df["name2"][filtered_df["type2"]=="CDS"])))
-    if top10 or top10g:
-        count = {c:0 for c in multifun_trans}
-        functions_return = ["top_10"]
-        if top10g:
-            functions_return = ["top_10_grouped"]
-            for fun in multifun_trans:
-                for name in all_names:
-                    if name in multifun_data and any((fun==f) or (fun+'-' in f) for f in multifun_data[name].split("_")): count[fun] += 1
-        else:
-            for name in all_names: 
-                if name in multifun_data: 
-                    for mf in multifun_data[name].split("_"): count[mf] += 1
+    all_names = np.unique(np.hstack((filtered_df["name1"][filtered_df["type1"].isin(["CDS", "5UTR", "3UTR"])], filtered_df["name2"][filtered_df["type2"].isin(["CDS", "5UTR", "3UTR"])])))
+    #if top10 or top10g:
+    count = {c:0 for c in multifun_trans}
+    for name in all_names: 
+        if name in multifun_data: 
+            for mf in multifun_data[name].split("_"): 
+                count[mf] += 1
+                #_, a, b, c = mf.split("-")
+                #count["KO" + "-" + a + "-" + b] += 1
+                #count["KO" + "-" + a] += 1
         
-        functions = sorted({k:v for k,v in count.items() if v>0}, key=count.get, reverse=True)
-        if top10g: functions = [f for i,f in enumerate(functions) if not any(((count[ff] > count[f]) and (ff+'-' in f)) or ((count[ff] == count[f]) and (f+'-' in ff)) for ff in functions)]
-        functions = functions[:10]
+    sorted_items = sorted({k:v for k,v in count.items() if v>0}, key=count.get, reverse=True)
+    
+    select_options = [{"label":"[{}] {}".format(count[a], multifun_trans[a]), "value":a}  for a in sorted_items]
+    #if top10g: functions = [f for i,f in enumerate(functions) if not any(((count[ff] > count[f]) and (ff+'-' in f)) or ((count[ff] == count[f]) and (f+'-' in ff)) for ff in functions)]
+    #functions = functions[:10]
     
     selected_fun_genes = []
     fun2color = dict()
@@ -65,7 +79,7 @@ def filter_df(df, search_strings, max_interactions, slider_value, functions, che
         selected_fun_genes = [n for n in all_names if ((n in multifun_data) and any(any(ff == f or f+'-' in ff for ff in multifun_data[n].split("_")) for f in functions))] 
         if ("restrict_fun" in checklist): filtered_df = filter_search(filtered_df, selected_fun_genes)
         
-    return filtered_df, functions, fun2color, functions_return, selected_fun_genes
+    return filtered_df, functions, fun2color, select_options, selected_fun_genes
 
 def filter_threshold(df, threshold):
     return df[np.log(df['nb_ints']) > threshold]
@@ -93,6 +107,9 @@ def table_data(df):
 def fix_ig_label(label):
     if ':' in label:
         return '\n'.join(['IG']+label.split(':'))
+    #elif label.startswith('VC'): 
+    #    if label[2] == 'A': return 'VCA\n'+label[3:]
+    #    else: return 'VC\n'+label[2:]
     else: return label
     
 def translate(value, leftMin, leftMax, rightMin, rightMax):
@@ -118,7 +135,7 @@ def shorten(s):
         s=s[:14] + '...'
     return s
 
-def break_lines(s, nchars=15):
+def break_lines(s, nchars=18):
     a = s.split(" ")
     return_s = ""
     c = 0
@@ -174,7 +191,7 @@ def cytoscape_data(df, norm, selected_functions):
         
         source_id = source
         target_id = target
-        edges.append({'data': dict(source=source_id, target=target_id, fragments=nb_ints, pos=pos, mi=mi, ma=ma, typ=edge_type, in_libs=in_libs),
+        edges.append({'data': dict(source=source_id, target=target_id, fragments=nb_ints, norm_fragments=nb_ints*norm/current_norm, pos=pos, mi=mi, ma=ma, typ=edge_type, in_libs=in_libs),
                       'classes': edge_type}) 
         if source_id in fragment_count: 
             fragment_count[source_id] += nb_ints
@@ -240,7 +257,7 @@ with open(os.path.join(dir_path, "assets", 'mystylesheet.json')) as json_file:
     stylesheet = json.load(json_file)
 
 if functional_annotation_db == "KEGG Orthology":
-    gene_name = "locus_tag"
+    gene_name = "name"
     identifier = "hierarchy"
     description = "description"
     gene_categories = "ko_category"
@@ -259,7 +276,7 @@ elif functional_annotation_db == "Multifun":
 multifun_trans = {row[identifier].replace(".", "-"):row[description] for i, row in pd.read_csv(os.path.join(dir_path, "assets", fname_categories), sep='\t').iterrows()}
 multifun_data = {row[gene_name]:"_".join([mf.replace(".", "-") for mf in row[gene_categories].split(":")]) for i, row in pd.read_csv(os.path.join(dir_path, "assets", fname_genes), sep='\t').iterrows() if row[gene_categories].startswith(category_prefix)}
 multifun_set = np.unique(np.hstack([[mf.replace(".", "-") for mf in row[gene_categories].split(":")] for i, row in pd.read_csv(os.path.join(dir_path, "assets", fname_genes), sep='\t').iterrows() if row[gene_categories].startswith(category_prefix)]))
-multifun_items = [{"value":key, "label":val} for key, val in multifun_trans.items() if key in multifun_set]
+multifun_items = [{"value":key, "label":"[0] "+val} for key, val in multifun_trans.items() if key in multifun_set]
 
 app.layout = html.Div(
     id="root",
@@ -354,16 +371,17 @@ app.layout = html.Div(
                                 html.Div(
                                     className="controls-block",
                                     children=[
-                                        html.P("Color by:"),
+                                        html.P("Annotated Functions:"),
                                         dcc.Dropdown(
                                             id='function-multi-select',
-                                            options=[{"label":"top 10 functions", "value":"top_10"}, {"label":"top 10 functions (hierarchically grouped)", "value":"top_10_grouped"}]+multifun_items,
+                                            options=multifun_items,
+                                            clearable=False,
                                             multi=True
                                         ),
                                         dcc.Checklist(
                                             id="color-checklist",
                                             options=[
-                                                {"label":"Restrict current graph to selected functions", "value":"restrict_fun"} 
+                                                {"label":"Restrict current graph to selected functions", "value":"restrict_fun"}
                                             ],
                                             style={"padding-top":"12px", "display":"flex", "flex-direction":"column"}
                                         )
@@ -440,6 +458,7 @@ app.layout = html.Div(
                                                             'color': '#000',
                                                             'labelDenominator': 1000000,
                                                             'labelSuffix': ' Mb',
+                                                            'labelFont': 'Arial',
                                                             'majorSpacing':5,
                                                             'minorSpacing':1,
                                                             'labelSpacing':5
@@ -458,12 +477,6 @@ app.layout = html.Div(
                                                           "color": "#99cc33",
                                                           "len": 1072315
                                                         }
-                                                    #    {
-                                                    #      "id": "NC_000913.3",
-                                                    #      "label": "",
-                                                    #      "color": "#999999",
-                                                    #      "len": 4641652
-                                                    #    }
                                                     ],
                                                     selectEvent={"0": "hover", "1": "click", "2": "both"},
                                                     tracks=[{
@@ -475,8 +488,7 @@ app.layout = html.Div(
                                                             'tooltipContent': {'name':'nb_ints'}
                                                         }
                                                     }]
-                                                ),
-                                                #html.Button('Save', id='save-circos', n_clicks=0)
+                                                )
                                             ]
                                         )
                                     ]
@@ -497,11 +509,9 @@ app.layout = html.Div(
                                                     columns=[{"name": i, "id": i} for i in ["name1", "type1", "name2", "type2", "nb_ints", "in_libs"]],
                                                     style_cell={
                                                         'height': 'auto',
-                                                        # all three widths are needed
                                                         'minWidth': '140px', 'width': '140px', 'maxWidth': '140px',
                                                         'whiteSpace': 'normal'
                                                     }
-                                                    #data=table_data(empty_df).to_dict('records')
                                                 ),
                                                 html.Div(
                                                     [
@@ -531,37 +541,40 @@ app.layout = html.Div(
      State('function-multi-select', 'value'),
      State('color-checklist', 'value'),
      State('dropdown-update-dataset', 'value')],
-    prevent_initial_call=True,
+    prevent_initial_call=True
 )
 def func(n_clicks, search_strings, max_interactions, slider_value, functions, checklist, dataset):
     return dcc.send_data_frame(filter_df(initial_dfs[csv_trans[dataset]], search_strings, max_interactions, slider_value, functions, checklist)[0].to_csv, "interactions.csv")
 
 @app.callback(
     [Output("graph", "stylesheet"),
-    Output('table', 'data'),
     Output('graph', 'elements'),
+    Output('table', 'data'),
     Output('my-dashbio-circos', 'tracks'),
     Output('reads-slider', 'marks'),
     Output('nb-interactions-text', 'children'),
-    Output('function-multi-select', 'value'),
-    Output('legend-container', 'children')],
-    [Input('reads-slider', 'value'),
+    Output('function-multi-select', 'options'),
+    Output('legend-container', 'children'),
+    Output("graph", "layout")],
+    [Input('dropdown-update-layout', 'value'),
+    Input('reads-slider', 'value'),
     Input('gene-multi-select', 'value'),
-    Input('function-multi-select', 'value'),
     Input('color-checklist', 'value'),
     Input('max-interactions', 'value'),
-    Input('dropdown-update-dataset', 'value')]
+    Input('dropdown-update-dataset', 'value'),
+    Input('function-multi-select', 'value')],
+    prevent_initial_call=True
     )
-def update_selected_data(slider_value, search_strings, functions, checklist, max_interactions, dataset):
+def update_selected_data(layout_value, slider_value, search_strings, checklist, max_interactions, dataset, functions):
     
-    filtered_df, functions, fun2color, functions_return, selected_fun_genes = filter_df(initial_dfs[csv_trans[dataset]], search_strings, max_interactions, slider_value, functions, checklist)
+    filtered_df, functions, fun2color, fun_items, selected_fun_genes = filter_df(initial_dfs[csv_trans[dataset]], search_strings, max_interactions, slider_value, functions, checklist)
 
     all_unique_fun_strings = np.unique([multifun_data[n] for n in selected_fun_genes])
     my_stylesheet = [
         {"selector":"."+fun_combination, 
          "style":{
              "background-fill": "linear-gradient",
-             "background-gradient-stop-colors": " ".join([fun2color[fun] for fun in fun2color if any((fun==f) or (fun+'-' in f) for f in fun_combination.split("_"))]),
+             "background-gradient-stop-colors": " ".join([fun2color[fun] for fun in fun2color if any(fun==f for f in fun_combination.split("_"))]),
              "background-gradient-direction": "to-right",
              "background-blacken":"-0.2",
              "font-weight": "bold"
@@ -580,16 +593,53 @@ def update_selected_data(slider_value, search_strings, functions, checklist, max
         }
     }]
     
-    if functions is not None: legend = [html.Div(className="horizontal", children=[html.Div(className="color-legend-item", 
-                                                                                            style={"background-color":c}), 
+    if functions is not None: legend = [html.Div(className="horizontal centered", children=[html.Div(className="color-legend-item", style={"background-color":c}), 
                                                                                    html.P(break_lines(multifun_trans[f]), className="color-legend-text")]) for c, f in zip(fun_colors, functions)]
     else: legend = []
     
-    return stylesheet+my_stylesheet, table_data(filtered_df).to_dict('records'), \
-            cytoscape_data(filtered_df, fragments_sums[csv_trans[dataset]], functions), \
-            tracks, {slider_value: '{}'.format(int(np.exp(slider_value)))}, ["Current # of interactions: {} / ".format(len(filtered_df))], \
-            functions_return, legend
-
+    table = table_data(filtered_df).to_dict('records')
+    graph = cytoscape_data(filtered_df, fragments_sums[csv_trans[dataset]], functions)
+    circos = tracks
+    slider_value = {slider_value: '{}'.format(int(round(np.exp(slider_value)))+1)}
+    slider_text = ["Current # of interactions: {} / ".format(len(filtered_df))]
+    
+    if layout_value == 'cose-bilkent':
+        layout = {
+            'name':'cose-bilkent',
+            'quality': 'draft',
+            'idealEdgeLength': 40,
+            'nodeOverlap': 0,
+            'refresh': 10,
+            'fit': True,
+            'randomize': False,
+            'componentSpacing': 10,
+            'nodeRepulsion': 5000,
+            'edgeElasticity': 0.5,
+            'nestingFactor': 0.1,
+            'gravity': 0.25,
+            'numIter': 300,
+            'gravityRange': 5,
+            'animate': False
+        }
+    elif layout_value == 'concentric':
+        layout = {
+            'name':'concentric',
+            'animate':False
+        }
+    else:
+        layout = {
+            'name': layout_value,
+            'animate': False
+        }
+    
+    if callback_context.triggered:
+        for t in callback_context.triggered:
+            if t["prop_id"] == "function-multi-select.value":
+                layout = {"name":"preset", "fit":False}
+                break
+    
+    return stylesheet+my_stylesheet, graph, table, circos, slider_value, slider_text, fun_items, legend, layout
+    
 @app.callback(
     Output('info-output', 'children'),
     [Input('graph', 'selectedNodeData'),
@@ -638,45 +688,16 @@ def set_selected_element(node_data, edge_data, search_strings, max_interactions,
         nb_targets = len(set(list(selected_node_interactions['name1'])+list(selected_node_interactions['name2']))) - 1
         if selected_node in multifun_data: node_funs = multifun_data[selected_node].split("_")
         else: node_funs= []
-        text_return = ["{} is involved in {} interactions with {} partners.".format(selected_node, len(selected_node_interactions), nb_targets)]
+        t = ""
+        if nb_targets > 1: t = "s"
+        text_return = ["{} is involved in {} interaction{}.".format(selected_node, nb_targets, t)]
         if len(node_funs) > 0: text_return += [html.Br(), html.Br(), "{} classes:".format(functional_annotation_db)]
+        else: text_return += [html.Br(), html.Br(), "No {} classes are annotated.".format(functional_annotation_db)]
         for nf in node_funs:
             text_return += [html.Br(), multifun_trans[nf]]
         
     return text_return
-
-@app.callback(
-    Output('graph', 'layout'),
-    Input('dropdown-update-layout', 'value'))
-def update_layout(layout):
-    if layout == 'cose-bilkent':
-        return {
-            'name':'cose-bilkent',
-            'quality': 'draft',
-            'idealEdgeLength': 50,
-            'nodeOverlap': 0,
-            'refresh': 10,
-            'fit': True,
-            'randomize': False,
-            'componentSpacing': 10,
-            'nodeRepulsion': 5000,
-            'edgeElasticity': 0.5,
-            'nestingFactor': 0.1,
-            'gravity': 0.25,
-            'numIter': 300,
-            'gravityRange': 5,
-            'animate': False
-        }
-    elif layout == 'concentric':
-        return {
-            'name':'concentric',
-            'animate':False
-        }
-    else:
-        return {
-            'name': layout,
-            'animate': False
-        }
+    
 @app.callback(
     Output("graph", "generateImage"),
     Input('save-svg', 'n_clicks'))
@@ -684,7 +705,6 @@ def get_image(clicks):
     if clicks>0:
         return {
             'type': 'svg',
-            ''
             'action': 'download'
             }
     else: return no_update
@@ -706,4 +726,4 @@ def open_browser():
 
 if __name__ == '__main__':
     #open_browser();
-    app.run_server(debug=True,port=8081,host='0.0.0.0');
+    app.run_server(debug=False,port=8081,host='0.0.0.0');

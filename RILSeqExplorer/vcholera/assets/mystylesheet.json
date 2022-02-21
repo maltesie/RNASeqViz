@@ -8,17 +8,18 @@
 }, {
   "selector": "node",
   "style": {
-    "width": "mapData(current_fragments, 0, 0.7, 50, 170)",
-    "height": "mapData(current_fragments, 0, 0.7, 50, 170)",
+    "width": "mapData(current_fragments, 0, 0.7, 55, 150)",
+    "height": "mapData(current_fragments, 0, 0.7, 55, 150)",
     "content": "data(name)",
-    "font-size": "mapData(current_fragments, 0, 0.7, 15px, 35px)",
+    "font-size": "mapData(current_fragments, 0, 0.7, 12px, 32px)",
     "text-valign": "center",
     "text-halign": "center",
     "background-color": "#555",
     "color": "black",
     "overlay-padding": "6px",
     "z-index": "10",
-    "text-wrap": "wrap"
+    "text-wrap": "wrap",
+    "opacity": "0.85"
   }
 }, {
   "selector": ".sRNA",
@@ -33,9 +34,22 @@
     "font-weight":"bold"
   }
 },{
+  "selector": ".5UTR",
+  "style": {
+    "background-color": "BurlyWood",
+    "font-weight":"bold"
+  }
+},{
+  "selector": ".3UTR",
+  "style": {
+    "background-color": "BurlyWood",
+    "font-weight":"bold"
+  }
+},{
   "selector": ".IGR",
   "style": {
-    "background-color": "darkgrey"
+    "background-color": "darkgrey",
+    "font-size": "mapData(current_fragments, 0, 0.7, 9px, 20px)"
   }
 }, {
   "selector": "node[?attr]",
@@ -69,7 +83,7 @@
     "opacity": "0.4",
     "target-arrow-shape": "triangle",
     "line-color": "#bbb",
-    "width": "2",
+    "width": "mapData(norm_fragments, 0, 0.7, 2, 20)",
     "overlay-padding": "3px"
   }
 }, {

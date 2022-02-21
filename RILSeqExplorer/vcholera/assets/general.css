@@ -414,6 +414,10 @@ input[type="button"]:hover {
     flex-direction: row;
 }
 
+.centered {
+    align-items: center;
+}
+
 .control-element {
     padding-right:20px;
     min-width:120px;
@@ -451,15 +455,16 @@ input[type="button"]:hover {
 .color-legend-item{
     width:40px;
     height:40px;
+    margin-bottom:5px;
     border-radius:20px;
-    opacity:80%;
+    opacity:70%;
 }
 
 .color-legend-text{
     padding-top:7px;
     padding-left:3px;
     font-weight:bold;
-    font-size:14px;
+    font-size:12px;
     white-space:pre-line;
 }
 
