@@ -423,7 +423,7 @@ app.layout = html.Div(
                                                 cyto.Cytoscape(
                                                     id='graph',
                                                     elements=[],
-                                                    autoRefreshLayout=False,
+                                                    autoRefreshLayout=True,
                                                     stylesheet=stylesheet,
                                                     responsive=True,
                                                     layout={'name':'random'},
@@ -619,7 +619,7 @@ def update_selected_data(layout_value, slider_value, search_strings, tab, checkl
     table = table_data(filtered_df).to_dict('records')
     graph = cytoscape_data(filtered_df, fragments_sums[csv_trans[dataset]], functions)
     circos = tracks
-    slider_value = {slider_value: '{}'.format(int(round(np.exp(slider_value)))+1)}
+    slider_value = {slider_value: '{}'.format(int(np.exp(slider_value)+1))}
     slider_text = ["Current # of interactions: {} / ".format(len(filtered_df))]
     style = stylesheet+my_stylesheet
     
