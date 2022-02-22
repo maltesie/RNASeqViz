@@ -3,6 +3,7 @@ import dash_bio as dashbio
 from dash.dependencies import Input, Output, State
 import matplotlib.pyplot as plt
 import matplotlib
+import random
 
 import os
 import pandas as pd
@@ -210,20 +211,22 @@ def cytoscape_data(df, norm, selected_functions):
             
     for node in fragment_count:
         nodes.append({'data':dict(id=node, name=fix_ig_label(names[node]), fragments=fragment_count[node], current_fragments=fragment_count[node]*norm/current_norm, typ=types[node]), 'classes':types[node]})
-    
+
     return jsondata
 
 def circos_data(df):
     data = []
-    m = df['nb_ints'].max()
-    cmap = plt.get_cmap('binary')
+    #mi = df['nb_ints'].min()
+    #ma = df['nb_ints'].max()
+    #d = (ma-mi) / 200
+    #cmap = plt.get_cmap('plasma')
     for i, interaction in df.iterrows():
         source, target, nb_ints, start1, stop1, start2, stop2, chr1, chr2 = \
             interaction[['name1', 'name2', 'nb_ints', 'meanleft1', 'meanright1', 'meanleft2', 'meanright2', 'ref1', 'ref2']]
-        rgb = matplotlib.colors.rgb2hex(cmap((nb_ints/m + 3)/4))
+        #rgb = matplotlib.colors.rgb2hex(cmap(int((nb_ints - mi)/d)))
         data.append({
-            'color': rgb,
-            'nb_ints': nb_ints,
+            'color': '#222222',#.format(rgb),
+            'nb_ints': '{} -> {} ({})'.format(source, target, nb_ints),
             "source": {
                 "id": chr1,
                 "start": abs(start1),
@@ -231,8 +234,8 @@ def circos_data(df):
             },
             "target": {
                 "id": chr2,
-                "start": abs(start2),
-                "end": abs(start2)+1500
+                "start": abs(start2)-1500,
+                "end": abs(start2)
             }
         })
     return data
@@ -252,8 +255,7 @@ for file in os.listdir(os.path.join(dir_path, "assets")):
         fragments_sums.append(initial_dfs[-1]['nb_ints'].sum())
         csv_trans[csv_path] = csv_index
         csv_index += 1
-        
-        
+ 
 with open(os.path.join(dir_path, "assets", 'mystylesheet.json')) as json_file:
     stylesheet = json.load(json_file)
 
@@ -324,7 +326,7 @@ app.layout = html.Div(
                                                     value='random',
                                                     clearable=False,
                                                     options=[
-                                                        {'label': name.capitalize(), 'value': name}
+                                                        {'label': name, 'value': name}
                                                         for name in ['cose', 'grid', 'random', 'circle', 'concentric']
                                                     ]
                                                 )
@@ -421,14 +423,28 @@ app.layout = html.Div(
                                                 cyto.Cytoscape(
                                                     id='graph',
                                                     elements=[],
+                                                    autoRefreshLayout=False,
                                                     stylesheet=stylesheet,
                                                     responsive=True,
                                                     layout={'name':'random'},
-                                                    minZoom=0.1,
-                                                    maxZoom=5.0
+                                                    minZoom=0.4,
+                                                    maxZoom=2.0,
                                                 ),
                                                 html.Div(
-                                                    children=[html.Button('DOWNLOAD SVG', id='save-svg', n_clicks=0), html.Div(style={"height":"8%"}), html.Div(id="legend-container"), html.Div(style={"height":"100%"})])
+                                                    children=[
+                                                        #html.Div(
+                                                        #    className='horizontal',
+                                                        #    children=[
+                                                        #        html.Button('SVG', id='save-svg', n_clicks=0),
+                                                        #        html.Button('PNG', id='save-png', n_clicks=0),
+                                                        #    ]
+                                                        #),
+                                                        html.Button('DOWNLOAD SVG', id='save-svg', n_clicks=0),
+                                                        html.Div(style={"height":"8%"}), 
+                                                        html.Div(id="legend-container"), 
+                                                        html.Div(style={"height":"100%"})
+                                                    ]
+                                                )
                                             ]
                                         ),
                                     ]
@@ -479,7 +495,7 @@ app.layout = html.Div(
                                                           "len": 1072315
                                                         }
                                                     ],
-                                                    selectEvent={"0": "hover", "1": "click", "2": "both"},
+                                                    selectEvent={"2": "both"},
                                                     tracks=[{
                                                         'type': 'CHORDS',
                                                         'data': [],
@@ -560,28 +576,30 @@ def func(n_clicks, search_strings, max_interactions, slider_value, functions, ch
     [Input('dropdown-update-layout', 'value'),
     Input('reads-slider', 'value'),
     Input('gene-multi-select', 'value'),
+    Input('data-tabs', 'value'),
     Input('color-checklist', 'value'),
     Input('max-interactions', 'value'),
     Input('dropdown-update-dataset', 'value'),
     Input('function-multi-select', 'value')],
     prevent_initial_call=True
     )
-def update_selected_data(layout_value, slider_value, search_strings, checklist, max_interactions, dataset, functions):
+def update_selected_data(layout_value, slider_value, search_strings, tab, checklist, max_interactions, dataset, functions):
     
     filtered_df, functions, fun2color, fun_items, selected_fun_genes = filter_df(initial_dfs[csv_trans[dataset]], search_strings, max_interactions, slider_value, functions, checklist)
 
     all_unique_fun_strings = np.unique([multifun_data[n] for n in selected_fun_genes])
-    my_stylesheet = [
-        {"selector":"."+fun_combination, 
-         "style":{
-             "background-fill": "linear-gradient",
-             "background-gradient-stop-colors": " ".join([fun2color[fun] for fun in fun2color if any(fun==f for f in fun_combination.split("_"))]),
-             "background-gradient-direction": "to-right",
-             "background-blacken":"-0.2",
-             "font-weight": "bold"
-             }
-         } 
-        for fun_combination in all_unique_fun_strings]
+    my_stylesheet = []
+    for fun_combination in all_unique_fun_strings:
+        colors = [fun2color[fun] for fun in fun2color if any((fun==f) or (fun+'-' in f) for f in fun_combination.split("_"))]
+        element = {"selector":"."+fun_combination, 
+                    "style":{
+                        "background-fill": "linear-gradient",
+                        "background-gradient-stop-colors": " ".join(colors),
+                        "background-gradient-direction": "to-right",
+                        "font-weight": "bold"
+                        }
+                    } 
+        my_stylesheet.append(element)
 
     tracks=[{
         'type': 'CHORDS',
@@ -603,23 +621,14 @@ def update_selected_data(layout_value, slider_value, search_strings, checklist, 
     circos = tracks
     slider_value = {slider_value: '{}'.format(int(round(np.exp(slider_value)))+1)}
     slider_text = ["Current # of interactions: {} / ".format(len(filtered_df))]
-
-    if layout_value == 'cose-bilkent':
+    style = stylesheet+my_stylesheet
+    
+    if layout_value == 'cose':
         layout = {
-            'name':'cose-bilkent',
-            'quality': 'draft',
-            'idealEdgeLength': 50,
-            'nodeOverlap': 0,
-            'refresh': 10,
+            'name':'cose',
             'fit': True,
             'randomize': False,
-            'componentSpacing': 10,
-            'nodeRepulsion': 5000,
-            'edgeElasticity': 0.5,
-            'nestingFactor': 0.1,
-            'gravity': 0.25,
-            'numIter': 300,
-            'gravityRange': 5,
+            'numIter': 500,
             'animate': False
         }
     elif layout_value == 'concentric':
@@ -634,15 +643,20 @@ def update_selected_data(layout_value, slider_value, search_strings, checklist, 
         }
 
     if callback_context.triggered:
-        for t in callback_context.triggered:
-            if t["prop_id"] == "function-multi-select.value":
-                layout = {
-                    'name': 'preset',
-                    'animate': False
-                }### LOOK INTO THIS
-                break
-    #if graph_elements: legend = [html.P(str(graph_elements))]
-    return layout, graph, stylesheet+my_stylesheet, table, circos, slider_value, slider_text, fun_items, legend
+        if callback_context.triggered[0]["prop_id"] == "function-multi-select.value":
+            layout = {
+                'name': 'preset',
+                'animate': False
+            }
+        #elif callback_context.triggered[0]["prop_id"] == "data-tabs.value":
+        #    graph = no_update
+        #    style = no_update
+        #    layout = {
+        #        'name': 'preset',
+        #        'animate': False
+        #    } 
+
+    return layout, graph, style, table, circos, slider_value, slider_text, fun_items, legend
     
 @app.callback(
     Output('info-output', 'children'),
@@ -708,7 +722,7 @@ def set_selected_element(node_data, edge_data, search_strings, max_interactions,
 def get_image(clicks):
     if clicks>0:
         return {
-            'type': 'svg',
+            'type':'svg',
             'action': 'download'
             }
     else: return no_update
@@ -730,4 +744,4 @@ def open_browser():
 
 if __name__ == '__main__':
     #open_browser();
-    app.run_server(debug=False,port=8081,host='0.0.0.0');
+    app.run_server(debug=True,port=8081,host='0.0.0.0');
