@@ -191,7 +191,7 @@ def cytoscape_data(df, norm, selected_functions):
         
         source_id = source
         target_id = target
-        edges.append({'data': dict(source=source_id, target=target_id, fragments=nb_ints, norm_fragments=nb_ints*norm/current_norm, pos=pos, mi=mi, ma=ma, typ=edge_type, in_libs=in_libs),
+        edges.append({'data': dict(id=target+source, source=source_id, target=target_id, fragments=nb_ints, norm_fragments=nb_ints*norm/current_norm, pos=pos, mi=mi, ma=ma, typ=edge_type, in_libs=in_libs),
                       'classes': edge_type}) 
         if source_id in fragment_count: 
             fragment_count[source_id] += nb_ints
@@ -547,15 +547,15 @@ def func(n_clicks, search_strings, max_interactions, slider_value, functions, ch
     return dcc.send_data_frame(filter_df(initial_dfs[csv_trans[dataset]], search_strings, max_interactions, slider_value, functions, checklist)[0].to_csv, "interactions.csv")
 
 @app.callback(
-    [Output("graph", "stylesheet"),
+    [Output('graph', 'layout'),
     Output('graph', 'elements'),
+    Output("graph", 'stylesheet'),
     Output('table', 'data'),
     Output('my-dashbio-circos', 'tracks'),
     Output('reads-slider', 'marks'),
     Output('nb-interactions-text', 'children'),
     Output('function-multi-select', 'options'),
-    Output('legend-container', 'children'),
-    Output("graph", "layout")],
+    Output('legend-container', 'children')],
     [Input('dropdown-update-layout', 'value'),
     Input('reads-slider', 'value'),
     Input('gene-multi-select', 'value'),
@@ -563,6 +563,7 @@ def func(n_clicks, search_strings, max_interactions, slider_value, functions, ch
     Input('max-interactions', 'value'),
     Input('dropdown-update-dataset', 'value'),
     Input('function-multi-select', 'value')],
+    State('graph', 'elements'),
     prevent_initial_call=True
     )
 def update_selected_data(layout_value, slider_value, search_strings, checklist, max_interactions, dataset, functions):
@@ -602,12 +603,12 @@ def update_selected_data(layout_value, slider_value, search_strings, checklist, 
     circos = tracks
     slider_value = {slider_value: '{}'.format(int(round(np.exp(slider_value)))+1)}
     slider_text = ["Current # of interactions: {} / ".format(len(filtered_df))]
-    
+
     if layout_value == 'cose-bilkent':
         layout = {
             'name':'cose-bilkent',
             'quality': 'draft',
-            'idealEdgeLength': 40,
+            'idealEdgeLength': 50,
             'nodeOverlap': 0,
             'refresh': 10,
             'fit': True,
@@ -631,14 +632,17 @@ def update_selected_data(layout_value, slider_value, search_strings, checklist, 
             'name': layout_value,
             'animate': False
         }
-    
+
     if callback_context.triggered:
         for t in callback_context.triggered:
             if t["prop_id"] == "function-multi-select.value":
-                layout = {"name":"preset", "fit":False}
+                layout = {
+                    'name': 'preset',
+                    'animate': False
+                }### LOOK INTO THIS
                 break
-    
-    return stylesheet+my_stylesheet, graph, table, circos, slider_value, slider_text, fun_items, legend, layout
+    #if graph_elements: legend = [html.P(str(graph_elements))]
+    return layout, graph, stylesheet+my_stylesheet, table, circos, slider_value, slider_text, fun_items, legend
     
 @app.callback(
     Output('info-output', 'children'),
@@ -709,6 +713,40 @@ def get_image(clicks):
             }
     else: return no_update
 
+'''
+@app.callback(
+    Output('graph', 'layout'),
+    Input('dropdown-update-layout', 'value'))
+def update_layout(layout):
+    if layout == 'cose-bilkent':
+        return {
+            'name':'cose-bilkent',
+            'quality': 'draft',
+            'idealEdgeLength': 50,
+            'nodeOverlap': 0,
+            'refresh': 10,
+            'fit': True,
+            'randomize': False,
+            'componentSpacing': 10,
+            'nodeRepulsion': 5000,
+            'edgeElasticity': 0.5,
+            'nestingFactor': 0.1,
+            'gravity': 0.25,
+            'numIter': 300,
+            'gravityRange': 5,
+            'animate': False
+        }
+    elif layout == 'concentric':
+        return {
+            'name':'concentric',
+            'animate':False
+        }
+    else:
+        return {
+            'name': layout,
+            'animate': False
+        }
+'''
 @app.callback(
     [Output('reads-slider', 'min'),
      Output('reads-slider', 'max'),
