@@ -21,6 +21,7 @@ fun_colors = ["DarkOliveGreen", "DarkRed", "DarkSlateBlue", "LightCoral", "Khaki
 
 app = Dash(
     __name__,
+    title='RILSeqExplorer',
     meta_tags=[
         {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
     ],
@@ -290,7 +291,7 @@ app.layout = html.Div(
                         html.Div(
                             id="headline",
                             children=[
-                                html.H3(children="RIL-Seq Analysis Visualization"),
+                                html.H3(children="RILSeqExplorer"),
                             ],
                         ),
                         html.Div(
@@ -305,10 +306,10 @@ app.layout = html.Div(
                                                 html.P("Dataset:"),
                                                 dcc.Dropdown(
                                                     id='dropdown-update-dataset',
-                                                    value=dataset_paths[0],
+                                                    value=dataset_paths[3],
                                                     clearable=False,
                                                     options=[
-                                                        {'label': name.split('/')[-1], 'value': name}
+                                                        {'label': name.split('/')[-1][:-4], 'value': name}
                                                         for name in dataset_paths
                                                     ]
                                                 ),
@@ -563,7 +564,6 @@ def func(n_clicks, search_strings, max_interactions, slider_value, functions, ch
     Input('max-interactions', 'value'),
     Input('dropdown-update-dataset', 'value'),
     Input('function-multi-select', 'value')],
-    State('graph', 'elements'),
     prevent_initial_call=True
     )
 def update_selected_data(layout_value, slider_value, search_strings, checklist, max_interactions, dataset, functions):
@@ -713,40 +713,6 @@ def get_image(clicks):
             }
     else: return no_update
 
-'''
-@app.callback(
-    Output('graph', 'layout'),
-    Input('dropdown-update-layout', 'value'))
-def update_layout(layout):
-    if layout == 'cose-bilkent':
-        return {
-            'name':'cose-bilkent',
-            'quality': 'draft',
-            'idealEdgeLength': 50,
-            'nodeOverlap': 0,
-            'refresh': 10,
-            'fit': True,
-            'randomize': False,
-            'componentSpacing': 10,
-            'nodeRepulsion': 5000,
-            'edgeElasticity': 0.5,
-            'nestingFactor': 0.1,
-            'gravity': 0.25,
-            'numIter': 300,
-            'gravityRange': 5,
-            'animate': False
-        }
-    elif layout == 'concentric':
-        return {
-            'name':'concentric',
-            'animate':False
-        }
-    else:
-        return {
-            'name': layout,
-            'animate': False
-        }
-'''
 @app.callback(
     [Output('reads-slider', 'min'),
      Output('reads-slider', 'max'),
